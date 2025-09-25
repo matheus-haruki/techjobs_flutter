@@ -10,6 +10,9 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,27 +65,50 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               decoration: kTextFieldDecoration.copyWith(hintText: 'Email'),
             ),
             SizedBox(height: 12.0),
+            // ...existing code...
             TextField(
               style: kInputStyle,
-              obscureText: true,
+              obscureText: _obscurePassword,
               onChanged: (value) {
                 //Do something with the user input.
               },
               decoration: kTextFieldDecoration.copyWith(
                 hintText: 'Senha',
                 prefixIcon: Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
             ),
             SizedBox(height: 12.0),
             TextField(
               style: kInputStyle,
-              obscureText: true,
+              obscureText: _obscureConfirmPassword,
               onChanged: (value) {
                 //Do something with the user input.
               },
               decoration: kTextFieldDecoration.copyWith(
                 hintText: 'Confirme a Senha',
                 prefixIcon: Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
+                ),
               ),
             ),
             SizedBox(height: 26.0),
