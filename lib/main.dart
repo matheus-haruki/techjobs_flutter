@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/screens/registration_empresa_screen.dart';
 import 'package:flutter_chat/screens/welcome_screen.dart';
 import 'package:flutter_chat/screens/login_screen.dart';
-import 'package:flutter_chat/screens/registration_screen.dart';
+import 'package:flutter_chat/screens/registration_candidato_screen.dart';
 import 'package:flutter_chat/screens/escolha_cadastro_screen.dart';
-
 
 void main() => runApp(FlashChat());
 
@@ -18,8 +18,9 @@ class FlashChat extends StatelessWidget {
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         LoginScreen.id: (context) => LoginScreen(),
-        RegistrationScreen.id: (context) => RegistrationScreen(),
-        EscolhaCadastroScreen.id: (context) => EscolhaCadastroScreen()
+        EscolhaCadastroScreen.id: (context) => EscolhaCadastroScreen(),
+        RegistrationCandidatoScreen.id: (context) => RegistrationCandidatoScreen(),
+        RegistrationEmpresaScreen.id: (context) => RegistrationEmpresaScreen(),
       },
     );
   }
