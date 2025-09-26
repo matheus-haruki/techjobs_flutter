@@ -10,6 +10,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _obscureSenha = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             SizedBox(
-              height: 200.0,
+              height: 60.0,
               child: Image.asset('assets/images/logo.png'),
             ),
             SizedBox(height: 48.0),
@@ -35,21 +37,27 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 8.0),
             TextField(
               style: kInputStyle,
-              obscureText: true,
+              obscureText: _obscureSenha,
               onChanged: (value) {
                 //Do something with the user input.
               },
               decoration: kTextFieldDecoration.copyWith(
                 hintText: 'Senha',
                 prefixIcon: Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureSenha ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureSenha = !_obscureSenha;
+                    });
+                  },
+                ),
               ),
             ),
             SizedBox(height: 24.0),
-            BtnPadrao(
-              title: 'Log In',
-              color: Colors.lightBlueAccent,
-              onPressed: () {},
-            ),
+            BtnPadrao(title: 'Log In', color: kCorPrimaria, onPressed: () {}),
             SizedBox(height: 12.0),
             SizedBox(
               width: 220,

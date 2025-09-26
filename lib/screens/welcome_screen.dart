@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
-import 'registration_screen.dart'; // Deve estar assim
 import 'package:flutter_chat/constants.dart';
+import 'package:flutter_chat/screens/escolha_cadastro_screen.dart';
+import 'package:flutter_chat/screens/login_screen.dart'; // Import absoluto
 
 class WelcomeScreen extends StatefulWidget {
   static const String id = 'welcome_screen';
@@ -22,26 +22,55 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 60.0, child: Image.asset('assets/images/logo.png')),
-                Text('Flash Chat', style: TextStyle(fontSize: 45.0, fontWeight: FontWeight.w900)),
+                SizedBox(
+                  height: 60.0,
+                  width: 60.0,
+                  child: Image.asset('assets/images/logo.png'),
+                ),
+                Text(
+                  'TechJobs',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 45.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
+            SizedBox(height: 15.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'PJ ou CLT, temos a vaga certa para você',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+
             SizedBox(height: 48.0),
             BtnPadrao(
-              title: 'Log In',
-              color: Colors.lightBlueAccent,
+              title: 'Entrar',
+              color: kCorPrimaria,
               onPressed: () {
                 Navigator.pushNamed(context, LoginScreen.id);
               },
             ),
             BtnPadrao(
-              title: 'Register',
-              color: Colors.blueAccent,
+              title: 'Cadastre-se',
+              color: kCorSecundaria,
               onPressed: () {
-                debugPrint('Register button pressed - trying to navigate to: ${RegistrationScreen.id}');
+                debugPrint(
+                  'Register button pressed - trying to navigate to: ${EscolhaCadastroScreen.id}',
+                );
 
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationScreen()));
+                Navigator.pushNamed(context, EscolhaCadastroScreen.id);
               },
             ),
           ],

@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 
+const kCorPrimaria = Color(0xFF5E93AD);
+const kCorPrimariaEscura = Color(0xFF3A708A);
+const kCorSecundaria = Color(0xFFFF9900);
+const kCorSecundariaEscura = Color(0xFFD07D00);
+const kCorFundo = Color(0xFFF3F3F3);
+const kBranco = Color(0xFFFFFFFF);
+const kCinza = Color(0xFF686868);
+
 const kSendButtonTextStyle = TextStyle(
   color: Colors.lightBlueAccent,
   fontWeight: FontWeight.bold,
@@ -35,7 +43,15 @@ class BtnPadrao extends StatelessWidget {
           onPressed: onPressed,
           minWidth: 200.0,
           height: 42.0,
-          child: Text(title),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 16.0,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
     );
@@ -53,4 +69,4 @@ const kTextFieldDecoration = InputDecoration(
   prefixIcon: Icon(Icons.email),
 );
 
-const kInputStyle = TextStyle(color: Colors.black,);
+const kInputStyle = TextStyle(color: Colors.black);
