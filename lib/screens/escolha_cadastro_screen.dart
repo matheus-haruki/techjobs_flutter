@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/screens/registration_candidato_screen.dart';
-import 'package:flutter_chat/constants.dart';
-import 'package:flutter_chat/screens/registration_empresa_screen.dart';
+import 'package:TechJobs/screens/registration_candidato_screen.dart';
+import 'package:TechJobs/constants.dart';
+import 'package:TechJobs/screens/registration_empresa_screen.dart';
 import 'package:flutter_svg/svg.dart';
 
 class EscolhaCadastroScreen extends StatefulWidget {

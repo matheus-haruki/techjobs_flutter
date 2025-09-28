@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/screens/registration_empresa_screen.dart';
-import 'package:flutter_chat/screens/welcome_screen.dart';
-import 'package:flutter_chat/screens/login_screen.dart';
-import 'package:flutter_chat/screens/registration_candidato_screen.dart';
-import 'package:flutter_chat/screens/escolha_cadastro_screen.dart';
+import 'package:TechJobs/screens/registration_empresa_screen.dart';
+import 'package:TechJobs/screens/welcome_screen.dart';
+import 'package:TechJobs/screens/login_screen.dart';
+import 'package:TechJobs/screens/registration_candidato_screen.dart';
+import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
 
 void main() => runApp(FlashChat());
 

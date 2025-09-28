@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/constants.dart';
+import 'package:TechJobs/constants.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_screen';

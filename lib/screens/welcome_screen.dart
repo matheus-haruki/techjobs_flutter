@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/constants.dart';
-import 'package:flutter_chat/screens/escolha_cadastro_screen.dart';
-import 'package:flutter_chat/screens/login_screen.dart'; // Import absoluto
+import 'package:TechJobs/constants.dart';
+import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
+import 'package:TechJobs/screens/login_screen.dart'; // Import absoluto
 
 class WelcomeScreen extends StatefulWidget {
   static const String id = 'welcome_screen';

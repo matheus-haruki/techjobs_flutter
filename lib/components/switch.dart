@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
-import 'package:flutter_chat/constants.dart'; // Certifique-se de que este import está correto
+import 'package:TechJobs/constants.dart'; // Certifique-se de que este import está correto
 
 class SwitchPersonalizado extends StatefulWidget {
   final String textoAtivo;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat/constants.dart';
-import 'package:flutter_chat/screens/escolha_cadastro_screen.dart';
-import 'package:flutter_chat/components/switch.dart';
+import 'package:TechJobs/constants.dart';
+import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
+import 'package:TechJobs/components/switch.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
