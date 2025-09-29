@@ -26,28 +26,38 @@ const kMessageContainerDecoration = BoxDecoration(
   border: Border(top: BorderSide(color: Colors.lightBlueAccent, width: 2.0)),
 );
 
-class BtnPadrao extends StatelessWidget {
-  BtnPadrao({required this.title, this.color, required this.onPressed});
 
+class BtnPadrao extends StatelessWidget {
+  // CORREÇÃO 1: Adicionado '?' para permitir que 'onPressed' seja nulo.
+  final VoidCallback? onPressed;
   final Color? color;
   final String title;
-  final VoidCallback onPressed;
+
+  const BtnPadrao({
+    super.key,
+    required this.title,
+    this.color,
+    // CORREÇÃO 2: 'onPressed' não é mais 'required'.
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
         elevation: 5.0,
         color: color,
         borderRadius: BorderRadius.circular(30.0),
         child: MaterialButton(
+          // Agora o MaterialButton recebe a propriedade 'onPressed' que pode ser nula.
+          // Se for nula, o MaterialButton se desabilita automaticamente.
           onPressed: onPressed,
           minWidth: 200.0,
           height: 42.0,
           child: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Montserrat',
               fontSize: 16.0,
               fontWeight: FontWeight.w900,
