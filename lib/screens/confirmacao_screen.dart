@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 class ConfirmacaoScreen extends StatefulWidget {
   static const String id = 'confirmacao_screen'; // ID único para esta tela
 
+  // Adicionar const ao construtor
+  const ConfirmacaoScreen({super.key});
+
   @override
   _ConfirmacaoScreenState createState() => _ConfirmacaoScreenState();
 }
@@ -19,17 +22,18 @@ class _ConfirmacaoScreenState extends State<ConfirmacaoScreen> {
   }
 
   void _navigateToLogin() {
-    // Espera 1 segundo antes de navegar
-    Timer(Duration(seconds: 2), () {
-      // A mágica acontece aqui!
-      // Navega para a tela de login e remove TODAS as telas anteriores da pilha.
-      Navigator.pushNamedAndRemoveUntil(context, LoginScreen.id, (Route<dynamic> route) => false);
+    Timer(const Duration(seconds: 2), () {
+      // MELHORIA: Garante que o widget ainda está na tela antes de navegar.
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(context, LoginScreen.id, (Route<dynamic> route) => false);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
+      // Adicionar const
       backgroundColor: Colors.green, // Cor de sucesso
       body: Center(
         child: Column(
