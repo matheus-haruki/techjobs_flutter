@@ -1,3 +1,4 @@
+import 'package:TechJobs/screens/confirmacao_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'login_screen.dart';
@@ -102,7 +103,7 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
                         title: 'Finalizar Cadastro',
                         color: kCorPrimaria,
                         onPressed: () {
-                          //Implement registration functionality.
+                          Navigator.pushNamed(context, ConfirmacaoScreen.id);
                         },
                       ),
                       SizedBox(height: 12.0),

@@ -1,9 +1,11 @@
+import 'package:TechJobs/screens/confirmacao_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/screens/registration_empresa_screen.dart';
 import 'package:TechJobs/screens/welcome_screen.dart';
 import 'package:TechJobs/screens/login_screen.dart';
 import 'package:TechJobs/screens/registration_candidato_screen.dart';
 import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
+import 'package:TechJobs/screens/candidato_screen.dart';
 
 void main() => runApp(FlashChat());
 
@@ -21,6 +23,8 @@ class FlashChat extends StatelessWidget {
         EscolhaCadastroScreen.id: (context) => EscolhaCadastroScreen(),
         RegistrationCandidatoScreen.id: (context) => RegistrationCandidatoScreen(),
         RegistrationEmpresaScreen.id: (context) => RegistrationEmpresaScreen(),
+        CandidatoScreen.id: (context) => CandidatoScreen(),
+        ConfirmacaoScreen.id: (context) => ConfirmacaoScreen(),
       },
     );
   }

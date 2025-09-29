@@ -1,3 +1,4 @@
+import 'package:TechJobs/screens/candidato_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
@@ -26,18 +27,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     // A decoração do TextField já muda com base no estado
-    final InputDecoration activeDecoration = _isCandidato
-        ? kTextFieldDecorationEmpresa
-        : kTextFieldDecoration;
+    final InputDecoration activeDecoration = _isCandidato ? kTextFieldDecorationEmpresa : kTextFieldDecoration;
 
     // ✨ PASSO 1: Crie uma variável para a cor do botão baseada no mesmo estado
-    final Color activeButtonColor = _isCandidato
-        ? kCorSecundaria
-        : kCorPrimaria;
+    final Color activeButtonColor = _isCandidato ? kCorSecundaria : kCorPrimaria;
 
-    final Color activeFundoColor = _isCandidato
-        ? kCorSecundariaFundo
-        : kCorFundo;
+    final Color activeFundoColor = _isCandidato ? kCorSecundariaFundo : kCorFundo;
+
+    final String activeRoleText = _isCandidato ? 'Digite seu CNPJ' : 'Digite seu e-mail';
+
+    final Icon activeIcon = _isCandidato ? Icon(Icons.business) : Icon(Icons.email);
 
     return Scaffold(
       backgroundColor: activeFundoColor,
@@ -60,16 +59,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 SizedBox(height: 30.0),
-                SizedBox(
-                  height: 60.0,
-                  child: Image.asset('assets/images/logo.png'),
-                ),
+                SizedBox(height: 60.0, child: Image.asset('assets/images/logo.png')),
                 SizedBox(height: 48.0),
                 TextField(
                   controller: _emailController,
                   style: kInputStyle,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: activeDecoration.copyWith(hintText: 'E-mail'),
+                  decoration: activeDecoration.copyWith(hintText: activeRoleText, prefixIcon: activeIcon),
                 ),
                 SizedBox(height: 8.0),
                 TextField(
@@ -77,12 +73,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: kInputStyle,
                   obscureText: _obscureSenha,
                   decoration: activeDecoration.copyWith(
-                    hintText: 'Senha',
+                    hintText: 'Digite sua senha',
                     prefixIcon: Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureSenha ? Icons.visibility : Icons.visibility_off,
-                      ),
+                      icon: Icon(_obscureSenha ? Icons.visibility : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _obscureSenha = !_obscureSenha;
@@ -96,35 +90,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 BtnPadrao(
                   title: 'Entrar',
                   color: activeButtonColor, // <-- ALTERAÇÃO APLICADA AQUI
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, CandidatoScreen.id);
+                  },
                 ),
                 SizedBox(height: 12.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Não possui uma conta? ',
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    Text('Não possui uma conta? ', style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700)),
                     TextButton(
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                       onPressed: () {
                         Navigator.pushNamed(context, EscolhaCadastroScreen.id);
                       },
                       child: Text(
                         'Registre-se aqui',
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w700,
-                          color: activeButtonColor,
-                        ),
+                        style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: activeButtonColor),
                       ),
                     ),
                   ],
