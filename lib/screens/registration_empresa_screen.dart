@@ -1,3 +1,4 @@
+import 'package:TechJobs/screens/empresa_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'login_screen.dart';
@@ -112,7 +113,7 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
                         title: 'Finalizar Cadastro',
                         color: kCorSecundaria,
                         onPressed: () {
-                          //Implement registration functionality.
+                          Navigator.pushNamed(context, EmpresaScreen.id);
                         },
                       ),
                       SizedBox(height: 12.0),

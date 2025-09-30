@@ -110,20 +110,27 @@ final kTextFieldDecorationEmpresa = InputDecoration(
 
 const kInputStyle = TextStyle(color: Colors.black, fontFamily: 'Montserrat', fontWeight: FontWeight.w900);
 
-appbar(context, titulo, {bool icon = false, onTap, String? imageIcon, Color? iconColor = kBranco}) {
+appbar(context, titulo, {
+  bool icon = false, 
+  onTap, 
+  String? imageIcon, 
+  Color? iconColor = kBranco,
+  Color gradientStart = kCorSecundaria,        // Cor inicial do gradiente
+  Color gradientEnd = kCorSecundariaEscura,    // Cor final do gradiente
+  IconData icone = Icons.person,               // CORREÇÃO: IconData em vez de Icon
+}) {
   return AppBar(
-    backgroundColor: kCorSecundariaEscura,
+    backgroundColor: gradientEnd,  // Usar a cor final como backgroundColor
     foregroundColor: kBranco,
     shadowColor: Colors.transparent,
     toolbarHeight: 112,
     systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
     flexibleSpace: Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
-          colors: [kCorSecundaria, kCorSecundariaEscura],
-          //colors: [Estilos.azulGradient5, Estilos.azulGradient3],
+          colors: [gradientStart, gradientEnd], // Usar as cores passadas como parâmetro
         ),
       ),
     ),
@@ -142,7 +149,9 @@ appbar(context, titulo, {bool icon = false, onTap, String? imageIcon, Color? ico
         icon
             ? GestureDetector(
                 onTap: onTap,
-                child: imageIcon != null ? SvgPicture.asset(imageIcon, width: 24, height: 24) : const Icon(Icons.person, color: kBranco),
+                child: imageIcon != null 
+                    ? SvgPicture.asset(imageIcon, width: 24, height: 24) 
+                    : Icon(icone, color: iconColor), // CORREÇÃO: usar iconColor
               )
             : Container(),
       ],
