@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 
 const kCorPrimaria = Color(0xFF5E93AD);
 const kCorPrimariaEscura = Color(0xFF3A708A);
@@ -10,22 +12,13 @@ const kBranco = Color(0xFFFFFFFF);
 const kCinza = Color(0xFF686868);
 const kPreto = Color(0xFF000000);
 
-const kSendButtonTextStyle = TextStyle(
-  color: Colors.lightBlueAccent,
-  fontWeight: FontWeight.bold,
-  fontSize: 18.0,
-);
+const kSendButtonTextStyle = TextStyle(color: Colors.lightBlueAccent, fontWeight: FontWeight.bold, fontSize: 18.0);
 
 const kMessageTextFieldDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
   hintText: 'Type your message here...',
   border: InputBorder.none,
 );
-
-const kMessageContainerDecoration = BoxDecoration(
-  border: Border(top: BorderSide(color: Colors.lightBlueAccent, width: 2.0)),
-);
-
 
 class BtnPadrao extends StatelessWidget {
   // CORREÇÃO 1: Adicionado '?' para permitir que 'onPressed' seja nulo.
@@ -57,12 +50,7 @@ class BtnPadrao extends StatelessWidget {
           height: 42.0,
           child: Text(
             title,
-            style: const TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 16.0,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontFamily: 'Montserrat', fontSize: 16.0, fontWeight: FontWeight.w900, color: Colors.white),
           ),
         ),
       ),
@@ -82,24 +70,16 @@ final kTextFieldDecoration = InputDecoration(
 
   prefixIcon: Icon(Icons.email),
   // Borda genérica (usada como base e para outros estados)
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-  ),
+  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
 
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(
-      width: 3.0,
-      color: kCorSecundaria,
-    ), // Borda padrão mais fina
+    borderSide: BorderSide(width: 3.0, color: kCorSecundaria), // Borda padrão mais fina
   ),
 
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(
-      width: 3.0,
-      color: kCorSecundariaEscura,
-    ), // Borda mais grossa e azul
+    borderSide: BorderSide(width: 3.0, color: kCorSecundariaEscura), // Borda mais grossa e azul
   ),
 );
 
@@ -115,29 +95,58 @@ final kTextFieldDecorationEmpresa = InputDecoration(
 
   prefixIcon: Icon(Icons.email),
   // Borda genérica (usada como base e para outros estados)
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12.0)),
-  ),
+  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
 
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(
-      width: 3.0,
-      color: kCorPrimaria,
-    ), // Borda padrão mais fina
+    borderSide: BorderSide(width: 3.0, color: kCorPrimaria), // Borda padrão mais fina
   ),
 
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(
-      width: 3.0,
-      color: kCorPrimariaEscura,
-    ), // Borda mais grossa e azul
+    borderSide: BorderSide(width: 3.0, color: kCorPrimariaEscura), // Borda mais grossa e azul
   ),
 );
 
-const kInputStyle = TextStyle(
-  color: Colors.black,
-  fontFamily: 'Montserrat',
-  fontWeight: FontWeight.w900,
-);
+const kInputStyle = TextStyle(color: Colors.black, fontFamily: 'Montserrat', fontWeight: FontWeight.w900);
+
+appbar(context, titulo, {bool icon = false, onTap, String? imageIcon, Color? iconColor = kBranco}) {
+  return AppBar(
+    backgroundColor: kCorSecundariaEscura,
+    foregroundColor: kBranco,
+    shadowColor: Colors.transparent,
+    toolbarHeight: 112,
+    systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+    flexibleSpace: Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [kCorSecundaria, kCorSecundariaEscura],
+          //colors: [Estilos.azulGradient5, Estilos.azulGradient3],
+        ),
+      ),
+    ),
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 15.0),
+          child: Text(
+            titulo,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, height: 0, letterSpacing: -0.24, color: const Color.fromARGB(255, 255, 255, 255)),
+          ),
+        ),
+        icon
+            ? GestureDetector(
+                onTap: onTap,
+                child: imageIcon != null ? SvgPicture.asset(imageIcon, width: 24, height: 24) : const Icon(Icons.person, color: kBranco),
+              )
+            : Container(),
+      ],
+    ),
+    elevation: 0,
+  );
+}
