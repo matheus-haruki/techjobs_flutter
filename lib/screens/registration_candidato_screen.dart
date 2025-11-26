@@ -9,20 +9,41 @@ class RegistrationCandidatoScreen extends StatefulWidget {
   static const String id = 'registration_candidato_screen';
 
   @override
-  _RegistrationCandidatoScreenState createState() => _RegistrationCandidatoScreenState();
+  _RegistrationCandidatoScreenState createState() =>
+      _RegistrationCandidatoScreenState();
 }
 
-class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScreen> {
+class _RegistrationCandidatoScreenState
+    extends State<RegistrationCandidatoScreen> {
   // CORREÇÃO 1: Adicionar a declaração dos controladores.
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
+  final _senhaFocusNode = FocusNode();
 
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  // Validação de senha
+  bool _hasMinLength = false;
+  bool _hasNumber = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _showPasswordValidation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Adicionar listener para o foco do campo de senha
+    _senhaFocusNode.addListener(() {
+      setState(() {
+        _showPasswordValidation = _senhaFocusNode.hasFocus;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -30,17 +51,80 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
     _emailController.dispose();
     _senhaController.dispose();
     _confirmaSenhaController.dispose();
+    _senhaFocusNode.dispose();
     super.dispose();
+  }
+
+  void _validatePassword(String password) {
+    setState(() {
+      _hasMinLength = password.length > 8;
+      _hasNumber = password.contains(RegExp(r'[0-9]'));
+      _hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      _hasLowercase = password.contains(RegExp(r'[a-z]'));
+    });
+  }
+
+  bool _isPasswordValid() {
+    return _hasMinLength && _hasNumber && _hasUppercase && _hasLowercase;
+  }
+
+  Widget _buildPasswordRequirement(String requirement, bool isValid) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        children: [
+          Icon(
+            isValid ? Icons.check_circle : Icons.cancel,
+            size: 16,
+            color: isValid ? Colors.green : kVermelho,
+          ),
+          SizedBox(width: 8),
+          Text(
+            requirement,
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: isValid ? Colors.green : kVermelho,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _submitCadastro() async {
     // Validação dos campos
-    if (_nomeController.text.isEmpty || _emailController.text.isEmpty || _senhaController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Por favor, preencha todos os campos.'), backgroundColor: Colors.red));
+    if (_nomeController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _senhaController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, preencha todos os campos.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
+
+    // Validação da força da senha
+    if (!_isPasswordValid()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A senha não atende aos critérios de segurança.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_senhaController.text != _confirmaSenhaController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('As senhas não coincidem.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('As senhas não coincidem.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -49,7 +133,11 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
     });
 
     try {
-      final novoCandidato = Candidato(nome: _nomeController.text, email: _emailController.text, senha: _senhaController.text);
+      final novoCandidato = Candidato(
+        nome: _nomeController.text,
+        email: _emailController.text,
+        senha: _senhaController.text,
+      );
 
       await _apiService.cadastrarCandidato(novoCandidato);
 
@@ -59,7 +147,12 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -88,11 +181,19 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(width: 80.0, child: Image.asset('assets/images/logo.png')),
+                          SizedBox(
+                            width: 80.0,
+                            child: Image.asset('assets/images/logo.png'),
+                          ),
                           SizedBox(height: 20.0),
                           Text(
                             'Seja bem vindo, Novato',
-                            style: TextStyle(fontFamily: 'Montserrat', fontSize: 25.0, fontWeight: FontWeight.w900, color: kPreto),
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.w900,
+                              color: kPreto,
+                            ),
                           ),
                         ],
                       ),
@@ -101,7 +202,10 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
                       TextField(
                         controller: _nomeController,
                         style: kInputStyle,
-                        decoration: kTextFieldDecoration.copyWith(hintText: 'Digite o seu nome completo', prefixIcon: Icon(Icons.person)),
+                        decoration: kTextFieldDecoration.copyWith(
+                          hintText: 'Digite o seu nome completo',
+                          prefixIcon: Icon(Icons.person),
+                        ),
                       ),
                       SizedBox(height: 12.0),
                       LabelPadrao(texto: ' E-mail:'),
@@ -109,19 +213,29 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
                         controller: _emailController,
                         style: kInputStyle,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: kTextFieldDecoration.copyWith(hintText: 'Digite seu e-mail'),
+                        decoration: kTextFieldDecoration.copyWith(
+                          hintText: 'Digite seu e-mail',
+                        ),
                       ),
                       SizedBox(height: 12.0),
+
+                      //Senha
                       LabelPadrao(texto: ' Senha:'),
                       TextField(
                         controller: _senhaController,
+                        focusNode: _senhaFocusNode, // Adicionar o FocusNode
                         style: kInputStyle,
                         obscureText: _obscurePassword,
+                        onChanged: _validatePassword,
                         decoration: kTextFieldDecoration.copyWith(
                           hintText: 'Crie uma senha',
                           prefixIcon: Icon(Icons.lock),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () {
                               setState(() {
                                 _obscurePassword = !_obscurePassword;
@@ -130,6 +244,46 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
                           ),
                         ),
                       ),
+                      SizedBox(height: 5),
+                      // Mostrar validação apenas quando o campo está em foco
+                      if (_showPasswordValidation)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //condições da senha
+                                Text(
+                                  'A senha deve conter: ',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: kPreto,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                _buildPasswordRequirement(
+                                  'Mais de 8 caracteres',
+                                  _hasMinLength,
+                                ),
+                                _buildPasswordRequirement(
+                                  'Pelo menos 1 número',
+                                  _hasNumber,
+                                ),
+                                _buildPasswordRequirement(
+                                  'Uma letra maiúscula',
+                                  _hasUppercase,
+                                ),
+                                _buildPasswordRequirement(
+                                  'Uma letra minúscula',
+                                  _hasLowercase,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       SizedBox(height: 12.0),
                       LabelPadrao(texto: ' Confirme sua senha:'),
                       TextField(
@@ -140,32 +294,55 @@ class _RegistrationCandidatoScreenState extends State<RegistrationCandidatoScree
                           hintText: 'Confirme a senha',
                           prefixIcon: Icon(Icons.lock),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscureConfirmPassword ? Icons.visibility : Icons.visibility_off),
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
                             onPressed: () {
                               setState(() {
-                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
                               });
                             },
                           ),
                         ),
                       ),
                       SizedBox(height: 26.0),
-                      BtnPadrao(title: 'Finalizar Cadastro', color: kCorPrimaria, onPressed: _isLoading ? null : _submitCadastro),
+                      BtnPadrao(
+                        title: 'Finalizar Cadastro',
+                        color: kCorPrimaria,
+                        onPressed: _isLoading ? null : _submitCadastro,
+                      ),
                       SizedBox(height: 12.0),
                       SizedBox(
                         width: 220,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Já possui uma conta? ', style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700)),
+                            Text(
+                              'Já possui uma conta? ',
+                              style: TextStyle(
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                             TextButton(
-                              style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                               onPressed: () {
                                 Navigator.pushNamed(context, LoginScreen.id);
                               },
                               child: Text(
                                 'Faça o login',
-                                style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w700, color: kPreto),
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: kPreto,
+                                ),
                               ),
                             ),
                           ],
@@ -200,7 +377,12 @@ class LabelPadrao extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 2.0),
       child: Text(
         texto,
-        style: TextStyle(fontFamily: 'Montserrat', fontSize: 18, fontWeight: FontWeight.w900, color: kPreto),
+        style: TextStyle(
+          fontFamily: 'Montserrat',
+          fontSize: 18,
+          fontWeight: FontWeight.w900,
+          color: kPreto,
+        ),
       ),
     );
   }
@@ -208,7 +390,12 @@ class LabelPadrao extends StatelessWidget {
 
 // Supondo que você tenha uma classe BtnPadrao parecida com esta:
 class BtnPadrao extends StatelessWidget {
-  const BtnPadrao({Key? key, required this.title, required this.color, this.onPressed}) : super(key: key);
+  const BtnPadrao({
+    Key? key,
+    required this.title,
+    required this.color,
+    this.onPressed,
+  }) : super(key: key);
 
   final String title;
   final Color color;

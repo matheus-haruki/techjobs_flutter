@@ -11,8 +11,13 @@ const kCorFundo = Color(0xFFF3F3F3);
 const kBranco = Color(0xFFFFFFFF);
 const kCinza = Color(0xFF686868);
 const kPreto = Color(0xFF000000);
+const kVermelho = Color.fromARGB(255, 255, 0, 0);
 
-const kSendButtonTextStyle = TextStyle(color: Colors.lightBlueAccent, fontWeight: FontWeight.bold, fontSize: 18.0);
+const kSendButtonTextStyle = TextStyle(
+  color: Colors.lightBlueAccent,
+  fontWeight: FontWeight.bold,
+  fontSize: 18.0,
+);
 
 const kMessageTextFieldDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -50,7 +55,12 @@ class BtnPadrao extends StatelessWidget {
           height: 42.0,
           child: Text(
             title,
-            style: const TextStyle(fontFamily: 'Montserrat', fontSize: 16.0, fontWeight: FontWeight.w900, color: Colors.white),
+            style: const TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 16.0,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
           ),
         ),
       ),
@@ -70,16 +80,24 @@ final kTextFieldDecoration = InputDecoration(
 
   prefixIcon: Icon(Icons.email),
   // Borda genérica (usada como base e para outros estados)
-  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+  ),
 
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(width: 3.0, color: kCorSecundaria), // Borda padrão mais fina
+    borderSide: BorderSide(
+      width: 3.0,
+      color: kCorSecundaria,
+    ), // Borda padrão mais fina
   ),
 
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(width: 3.0, color: kCorSecundariaEscura), // Borda mais grossa e azul
+    borderSide: BorderSide(
+      width: 3.0,
+      color: kCorSecundariaEscura,
+    ), // Borda mais grossa e azul
   ),
 );
 
@@ -95,42 +113,61 @@ final kTextFieldDecorationEmpresa = InputDecoration(
 
   prefixIcon: Icon(Icons.email),
   // Borda genérica (usada como base e para outros estados)
-  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+  ),
 
   enabledBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(width: 3.0, color: kCorPrimaria), // Borda padrão mais fina
+    borderSide: BorderSide(
+      width: 3.0,
+      color: kCorPrimaria,
+    ), // Borda padrão mais fina
   ),
 
   focusedBorder: OutlineInputBorder(
     borderRadius: BorderRadius.all(Radius.circular(12.0)),
-    borderSide: BorderSide(width: 3.0, color: kCorPrimariaEscura), // Borda mais grossa e azul
+    borderSide: BorderSide(
+      width: 3.0,
+      color: kCorPrimariaEscura,
+    ), // Borda mais grossa e azul
   ),
 );
 
-const kInputStyle = TextStyle(color: Colors.black, fontFamily: 'Montserrat', fontWeight: FontWeight.w900);
+const kInputStyle = TextStyle(
+  color: Colors.black,
+  fontFamily: 'Montserrat',
+  fontWeight: FontWeight.w900,
+);
 
-appbar(context, titulo, {
-  bool icon = false, 
-  onTap, 
-  String? imageIcon, 
+appbar(
+  context,
+  titulo, {
+  bool icon = false,
+  onTap,
+  String? imageIcon,
   Color? iconColor = kBranco,
-  Color gradientStart = kCorSecundaria,        // Cor inicial do gradiente
-  Color gradientEnd = kCorSecundariaEscura,    // Cor final do gradiente
-  IconData icone = Icons.person,               // CORREÇÃO: IconData em vez de Icon
+  Color gradientStart = kCorSecundaria, // Cor inicial do gradiente
+  Color gradientEnd = kCorSecundariaEscura, // Cor final do gradiente
+  IconData icone = Icons.person, // CORREÇÃO: IconData em vez de Icon
 }) {
   return AppBar(
-    backgroundColor: gradientEnd,  // Usar a cor final como backgroundColor
+    backgroundColor: gradientEnd, // Usar a cor final como backgroundColor
     foregroundColor: kBranco,
     shadowColor: Colors.transparent,
     toolbarHeight: 112,
-    systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+    systemOverlayStyle: SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ),
     flexibleSpace: Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
-          colors: [gradientStart, gradientEnd], // Usar as cores passadas como parâmetro
+          colors: [
+            gradientStart,
+            gradientEnd,
+          ], // Usar as cores passadas como parâmetro
         ),
       ),
     ),
@@ -143,14 +180,20 @@ appbar(context, titulo, {
             titulo,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, height: 0, letterSpacing: -0.24, color: const Color.fromARGB(255, 255, 255, 255)),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w400,
+              height: 0,
+              letterSpacing: -0.24,
+              color: const Color.fromARGB(255, 255, 255, 255),
+            ),
           ),
         ),
         icon
             ? GestureDetector(
                 onTap: onTap,
-                child: imageIcon != null 
-                    ? SvgPicture.asset(imageIcon, width: 24, height: 24) 
+                child: imageIcon != null
+                    ? SvgPicture.asset(imageIcon, width: 24, height: 24)
                     : Icon(icone, color: iconColor), // CORREÇÃO: usar iconColor
               )
             : Container(),
