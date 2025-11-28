@@ -1,5 +1,6 @@
 import 'package:TechJobs/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum CorInput { Primaria, Secundaria }
 
@@ -46,6 +47,9 @@ class Input extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool? obscureText;
   final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
+  final Function(String)? onChanged;
+  final FocusNode? focusNode;
 
   const Input({
     super.key,
@@ -58,6 +62,9 @@ class Input extends StatelessWidget {
     this.keyboardType,
     this.obscureText,
     this.maxLines,
+    this.inputFormatters,
+    this.onChanged,
+    this.focusNode,
   });
 
   @override
@@ -73,10 +80,13 @@ class Input extends StatelessWidget {
         SizedBox(height: 5),
         TextField(
           controller: controller,
+          focusNode: focusNode,
           style: kInputStyle,
           obscureText: obscureText ?? false,
           maxLines: maxLines ?? 1,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          onChanged: onChanged,
           decoration: corInput.estilo.copyWith(
             hintText: hintText,
             prefixIcon: prefixIcon,

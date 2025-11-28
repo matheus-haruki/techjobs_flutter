@@ -14,7 +14,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: kCorFundo,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -24,17 +24,49 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  height: 60.0,
-                  width: 60.0,
-                  child: Image.asset('assets/images/logo.png'),
-                ),
                 Text(
-                  'TechJobs',
+                  '.',
                   style: TextStyle(
                     fontFamily: 'Montserrat',
                     fontSize: 45.0,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
+                    color: kCorSecundariaEscura,
+                  ),
+                ),
+                Text(
+                  'T',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 45.0,
+                    fontWeight: FontWeight.w600,
+                    color: kCorPrimariaEscura,
+                  ),
+                ),
+                Text(
+                  'ech',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 45.0,
+                    fontWeight: FontWeight.w600,
+                    color: kPreto,
+                  ),
+                ),
+                Text(
+                  'J',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 45.0,
+                    fontWeight: FontWeight.w600,
+                    color: kCorPrimariaEscura,
+                  ),
+                ),
+                Text(
+                  'obs',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 45.0,
+                    fontWeight: FontWeight.w600,
+                    color: kPreto,
                   ),
                 ),
               ],
@@ -62,6 +94,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Navigator.pushNamed(context, LoginScreen.id);
               },
             ),
+            SizedBox(height: 15),
             BtnPadrao(
               title: 'Cadastre-se',
               color: kCorSecundaria,

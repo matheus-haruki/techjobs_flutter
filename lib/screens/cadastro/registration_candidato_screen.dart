@@ -1,10 +1,43 @@
 import 'package:TechJobs/screens/cadastro/confirmacao_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
+import '../../components/input.dart';
 import 'login_screen.dart';
 import '../../services/api_services.dart';
 import '../../models/candidato_model.dart';
-import 'package:brasil_fields/brasil_fields.dart';
+import 'package:flutter/services.dart';
+
+class CpfFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    // Remove todos os caracteres não numéricos
+    String text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    // Limita a 11 dígitos
+    if (text.length > 11) {
+      text = text.substring(0, 11);
+    }
+
+    // Aplica a formatação
+    String formatted = '';
+    for (int i = 0; i < text.length; i++) {
+      if (i == 3 || i == 6) {
+        formatted += '.';
+      } else if (i == 9) {
+        formatted += '-';
+      }
+      formatted += text[i];
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 
 class RegistrationCandidatoScreen extends StatefulWidget {
   static const String id = 'registration_candidato_screen';
@@ -87,7 +120,7 @@ class _RegistrationCandidatoScreenState
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontSize: 12,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
               color: isValid ? Colors.green : kVermelho,
             ),
           ),
@@ -194,69 +227,64 @@ class _RegistrationCandidatoScreenState
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 25.0,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                               color: kPreto,
                             ),
                           ),
                         ],
                       ),
                       SizedBox(height: 48.0),
-                      LabelPadrao(texto: ' Nome:'),
-                      TextField(
+                      // Nome
+                      Input(
+                        label: 'Nome',
+                        corInput: CorInput.Primaria,
                         controller: _nomeController,
-                        style: kInputStyle,
-                        decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Digite o seu nome completo',
-                          prefixIcon: Icon(Icons.person),
-                        ),
+                        hintText: 'Digite o seu nome completo',
+                        prefixIcon: Icon(Icons.person),
                       ),
                       SizedBox(height: 12.0),
-                      LabelPadrao(texto: ' E-mail:'),
-                      TextField(
+                      // E-mail
+                      Input(
+                        label: 'E-mail',
+                        corInput: CorInput.Primaria,
                         controller: _emailController,
-                        style: kInputStyle,
+                        hintText: 'Digite seu e-mail',
                         keyboardType: TextInputType.emailAddress,
-                        decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Digite seu e-mail',
-                        ),
+                        prefixIcon: Icon(Icons.email),
                       ),
                       SizedBox(height: 12.0),
-                      //CPF
-                      LabelPadrao(texto: ' CPF:'),
-                      TextField(
+                      // CPF
+                      Input(
+                        label: 'CPF',
+                        corInput: CorInput.Primaria,
                         controller: _cpfController,
-                        style: kInputStyle,
+                        hintText: 'Digite seu CPF',
+                        prefixIcon: Icon(Icons.description),
                         keyboardType: TextInputType.number,
-                        inputFormatters: [CpfInputFormatter()],
-                        decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Digite seu CPF',
-                          prefixIcon: Icon(Icons.description),
-                        ),
+                        inputFormatters: [CpfFormatter()],
                       ),
                       SizedBox(height: 12.0),
-                      //Senha
-                      LabelPadrao(texto: ' Senha:'),
-                      TextField(
+                      // Senha
+                      Input(
+                        label: 'Senha',
+                        corInput: CorInput.Primaria,
                         controller: _senhaController,
-                        focusNode: _senhaFocusNode, // Adicionar o FocusNode
-                        style: kInputStyle,
+                        focusNode: _senhaFocusNode,
+                        hintText: 'Crie uma senha',
                         obscureText: _obscurePassword,
                         onChanged: _validatePassword,
-                        decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Crie uma senha',
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
+                        prefixIcon: Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
                       ),
                       SizedBox(height: 5),
@@ -274,7 +302,7 @@ class _RegistrationCandidatoScreenState
                                   style: TextStyle(
                                     fontFamily: 'Montserrat',
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w500,
                                     color: kPreto,
                                   ),
                                 ),
@@ -300,27 +328,26 @@ class _RegistrationCandidatoScreenState
                           ),
                         ),
                       SizedBox(height: 12.0),
-                      LabelPadrao(texto: ' Confirme sua senha:'),
-                      TextField(
+                      // Confirmar Senha
+                      Input(
+                        label: 'Confirme sua senha',
+                        corInput: CorInput.Primaria,
                         controller: _confirmaSenhaController,
-                        style: kInputStyle,
+                        hintText: 'Confirme a senha',
                         obscureText: _obscureConfirmPassword,
-                        decoration: kTextFieldDecoration.copyWith(
-                          hintText: 'Confirme a senha',
-                          prefixIcon: Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscureConfirmPassword =
-                                    !_obscureConfirmPassword;
-                              });
-                            },
+                        prefixIcon: Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureConfirmPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
                         ),
                       ),
                       SizedBox(height: 26.0),
@@ -357,6 +384,7 @@ class _RegistrationCandidatoScreenState
                                   fontSize: 12.0,
                                   fontWeight: FontWeight.w700,
                                   color: kPreto,
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),
@@ -377,51 +405,6 @@ class _RegistrationCandidatoScreenState
           ],
         ),
       ),
-    );
-  }
-}
-
-class LabelPadrao extends StatelessWidget {
-  LabelPadrao({required this.texto});
-
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2.0),
-      child: Text(
-        texto,
-        style: TextStyle(
-          fontFamily: 'Montserrat',
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: kPreto,
-        ),
-      ),
-    );
-  }
-}
-
-// Supondo que você tenha uma classe BtnPadrao parecida com esta:
-class BtnPadrao extends StatelessWidget {
-  const BtnPadrao({
-    Key? key,
-    required this.title,
-    required this.color,
-    this.onPressed,
-  }) : super(key: key);
-
-  final String title;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: Text(title),
-      style: ElevatedButton.styleFrom(backgroundColor: color),
     );
   }
 }

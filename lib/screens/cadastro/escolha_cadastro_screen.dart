@@ -17,11 +17,11 @@ class _EscolhaCadastroScreenState extends State<EscolhaCadastroScreen> {
     return Scaffold(
       backgroundColor: kCorFundo,
       body: Padding(
-        padding: const EdgeInsets.all(60.0),
+        padding: const EdgeInsets.all(50.0),
         child: Column(
           children: [
             SizedBox(height: 72, child: Image.asset('assets/images/logo.png')),
-            SizedBox(height: 45.0),
+            SizedBox(height: 35.0),
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -105,7 +105,7 @@ class BotaoEscolha extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   fontSize: 18.0,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),
               ),
