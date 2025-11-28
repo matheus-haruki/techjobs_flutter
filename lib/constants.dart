@@ -31,35 +31,29 @@ class BtnPadrao extends StatelessWidget {
   final Color? color;
   final String title;
 
-  const BtnPadrao({
-    super.key,
-    required this.title,
-    this.color,
-    this.onPressed,
-  });
+  const BtnPadrao({super.key, required this.title, this.color, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
-      child: Material(
-        elevation: 5.0,
-        color: color,
-        borderRadius: BorderRadius.circular(30.0),
-        child: MaterialButton(
-          // Agora o MaterialButton recebe a propriedade 'onPressed' que pode ser nula.
-          // Se for nula, o MaterialButton se desabilita automaticamente.
-          onPressed: onPressed,
-          minWidth: 200.0,
-          height: 50.0,
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'Montserrat',
-              fontSize: 16.0,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
-            ),
+    return SizedBox(
+      width: double.infinity,
+      height: 50.0,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          elevation: 2,
+        ),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Montserrat',
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
           ),
         ),
       ),
@@ -180,8 +174,9 @@ appbar(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
+              fontFamily: 'Montserrat',
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
               height: 0,
               letterSpacing: -0.24,
               color: const Color.fromARGB(255, 255, 255, 255),

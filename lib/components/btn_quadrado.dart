@@ -39,7 +39,14 @@ class BtnPadraoSquare extends StatelessWidget {
           decoration: const BoxDecoration(
             color: kBranco,
             borderRadius: BorderRadius.all(Radius.circular(10)),
-            boxShadow: [BoxShadow(color: Color(0x19000000), blurRadius: 10, offset: Offset(0, 4), spreadRadius: 0)],
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x19000000),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+                spreadRadius: 0,
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -51,7 +58,9 @@ class BtnPadraoSquare extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       color: bgIconColor,
-                      borderRadius: BorderRadius.circular(100), // Define o raio em pixels
+                      borderRadius: BorderRadius.circular(
+                        20,
+                      ), // Define o raio em pixels
                     ),
                     width: 45,
                     height: 45,
@@ -65,6 +74,7 @@ class BtnPadraoSquare extends StatelessWidget {
               ),
               Container(
                 height: 35,
+                width: double.infinity,
                 margin: EdgeInsets.only(top: 5 * ffem),
                 padding: EdgeInsets.only(left: 5 * ffem, right: 5 * ffem),
                 child: Column(
@@ -78,7 +88,8 @@ class BtnPadraoSquare extends StatelessWidget {
                         fontSize: 11,
                         fontFamily: 'Roboto',
                         fontWeight: FontWeight.w700,
-                        letterSpacing: 0.56, // Use Estilos.preto, se estiver definido em outro lugar.
+                        letterSpacing:
+                            0.56, // Use Estilos.preto, se estiver definido em outro lugar.
                       ),
                     ),
                   ],

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
-import 'package:TechJobs/components/custom_nav_bars.dart';
-import 'package:TechJobs/screens/tabs/home_placeholder.dart';
-import 'package:TechJobs/screens/tabs/buscar_vagas_page.dart';
+
 class CandidatoScreen extends StatefulWidget {
   static const String id = 'candidato_screen';
 
@@ -11,58 +9,28 @@ class CandidatoScreen extends StatefulWidget {
 }
 
 class _CandidatoScreenState extends State<CandidatoScreen> {
-  int _currentIndex = 0;
-
-  // Lista de páginas para navegação
-  final List<Widget> _pages = [
-    HomePlaceholder(),
-    BuscarVagasPage(),
-  ];
-
-  void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appbar(
-        context,
-        'Candidato',
-        gradientStart: kCorSecundaria,
-        gradientEnd: kCorSecundariaEscura,
-      ),
+      appBar: appbar(context, 'Candidato', icon: true),
       backgroundColor: kCorSecundaria,
       body: SafeArea(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  color: kCorFundo,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10),
-                    topRight: Radius.circular(10),
-                  ),
-                  child: _pages[_currentIndex],
-                ),
+                  color: kCorFundo, // Adicionado: cor do container
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                ), // Corrigido: fechamento da decoration
+                child: Row(crossAxisAlignment: CrossAxisAlignment.center),
               ),
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: CandidatoNav(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
       ),
     );
   }

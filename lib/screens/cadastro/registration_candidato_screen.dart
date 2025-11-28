@@ -1,10 +1,10 @@
-import 'package:TechJobs/screens/candidato/candidato_screen.dart';
+import 'package:TechJobs/screens/cadastro/confirmacao_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:brasil_fields/brasil_fields.dart';
 import 'package:TechJobs/constants.dart';
+import 'login_screen.dart';
 import '../../services/api_services.dart';
 import '../../models/candidato_model.dart';
+import 'package:brasil_fields/brasil_fields.dart';
 
 class RegistrationCandidatoScreen extends StatefulWidget {
   static const String id = 'registration_candidato_screen';
@@ -35,7 +35,6 @@ class _RegistrationCandidatoScreenState
   bool _hasUppercase = false;
   bool _hasLowercase = false;
   bool _showPasswordValidation = false;
-  bool _passwordMismatch = false;
 
   @override
   void initState() {
@@ -68,13 +67,8 @@ class _RegistrationCandidatoScreenState
     });
   }
 
-  void _validatePasswordMatch(String confirmPassword) {
-    setState(() {
-      _passwordMismatch =
-          _senhaController.text.isNotEmpty &&
-          confirmPassword.isNotEmpty &&
-          _senhaController.text != confirmPassword;
-    });
+  bool _isPasswordValid() {
+    return _hasMinLength && _hasNumber && _hasUppercase && _hasLowercase;
   }
 
   Widget _buildPasswordRequirement(String requirement, bool isValid) {
@@ -103,30 +97,39 @@ class _RegistrationCandidatoScreenState
   }
 
   Future<void> _submitCadastro() async {
-    // Verificar se as senhas coincidem
-    if (_senhaController.text != _confirmaSenhaController.text) {
-      setState(() {
-        _passwordMismatch = true;
-      });
-      return;
-    }
-
-    // Validar CPF
-    if (_cpfController.text.isNotEmpty &&
-        !CPFValidator.isValid(_cpfController.text)) {
+    // Validação dos campos
+    if (_nomeController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _senhaController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('CPF inválido. Verifique o número digitado.'),
+          content: Text('Por favor, preencha todos os campos.'),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Limpar erro se senhas coincidem
-    setState(() {
-      _passwordMismatch = false;
-    });
+    // Validação da força da senha
+    if (!_isPasswordValid()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A senha não atende aos critérios de segurança.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (_senhaController.text != _confirmaSenhaController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('As senhas não coincidem.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -143,7 +146,7 @@ class _RegistrationCandidatoScreenState
 
       if (mounted) {
         // Verifica se o widget ainda está na tela antes de navegar
-        Navigator.pushReplacementNamed(context, '');
+        Navigator.pushReplacementNamed(context, ConfirmacaoScreen.id);
       }
     } catch (e) {
       if (mounted) {
@@ -218,22 +221,19 @@ class _RegistrationCandidatoScreenState
                         ),
                       ),
                       SizedBox(height: 12.0),
+                      //CPF
                       LabelPadrao(texto: ' CPF:'),
                       TextField(
                         controller: _cpfController,
                         style: kInputStyle,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          CpfInputFormatter(),
-                        ],
+                        inputFormatters: [CpfInputFormatter()],
                         decoration: kTextFieldDecoration.copyWith(
                           hintText: 'Digite seu CPF',
-                          prefixIcon: Icon(Icons.assignment_ind),
+                          prefixIcon: Icon(Icons.description),
                         ),
                       ),
                       SizedBox(height: 12.0),
-
                       //Senha
                       LabelPadrao(texto: ' Senha:'),
                       TextField(
@@ -305,7 +305,6 @@ class _RegistrationCandidatoScreenState
                         controller: _confirmaSenhaController,
                         style: kInputStyle,
                         obscureText: _obscureConfirmPassword,
-                        onChanged: _validatePasswordMatch,
                         decoration: kTextFieldDecoration.copyWith(
                           hintText: 'Confirme a senha',
                           prefixIcon: Icon(Icons.lock),
@@ -324,27 +323,6 @@ class _RegistrationCandidatoScreenState
                           ),
                         ),
                       ),
-                      if (_passwordMismatch)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Container(
-                            child: Row(
-                              children: [
-                                Icon(Icons.error, size: 16, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text(
-                                  'As senhas devem coincidir',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       SizedBox(height: 26.0),
                       BtnPadrao(
                         title: 'Finalizar Cadastro',
@@ -371,10 +349,7 @@ class _RegistrationCandidatoScreenState
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                               onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  CandidatoScreen.id,
-                                );
+                                Navigator.pushNamed(context, LoginScreen.id);
                               },
                               child: Text(
                                 'Faça o login',
@@ -396,7 +371,7 @@ class _RegistrationCandidatoScreenState
             // CORREÇÃO 2: Indicador de loading posicionado corretamente.
             if (_isLoading)
               Container(
-                color: Colors.black.withValues(alpha: 0.5), 
+                color: Colors.black.withOpacity(0.5),
                 child: const Center(child: CircularProgressIndicator()),
               ),
           ],
@@ -420,7 +395,7 @@ class LabelPadrao extends StatelessWidget {
         style: TextStyle(
           fontFamily: 'Montserrat',
           fontSize: 18,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w500,
           color: kPreto,
         ),
       ),

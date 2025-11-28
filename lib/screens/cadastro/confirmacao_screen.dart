@@ -1,7 +1,7 @@
 // Em um novo arquivo (ex: confirmation_screen.dart)
 
 import 'dart:async';
-import 'package:TechJobs/screens/login_screen.dart';
+import 'package:TechJobs/screens/cadastro/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmacaoScreen extends StatefulWidget {

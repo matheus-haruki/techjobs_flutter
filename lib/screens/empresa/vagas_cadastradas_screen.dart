@@ -3,6 +3,7 @@ import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
 import 'empresa_screen.dart';
 import 'criar_vagas_screen.dart';
+import 'detalhes_vaga_screen.dart';
 
 class VagasCadastradasScreen extends StatefulWidget {
   static const String id = 'vagas_cadastradas_screen';
@@ -80,6 +81,16 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
     }
   }
 
+  // Método para navegar para detalhes da vaga
+  void _navegarParaDetalhesVaga(Map<String, dynamic> vaga, int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DetalhesVagaScreen(vaga: vaga, vagaIndex: index),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,7 +131,7 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 28.0,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w600,
                               color: kPreto,
                             ),
                           ),
@@ -152,7 +163,6 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                           itemCount: VagasCadastradasScreen.vagas.length,
                           itemBuilder: (context, index) {
                             final vaga = VagasCadastradasScreen.vagas[index];
-                            final isActive = vaga['status'] == 'Ativa';
 
                             return Container(
                               margin: EdgeInsets.only(bottom: 16.0),
@@ -186,28 +196,43 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                                           ),
                                         ),
                                       ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: isActive
-                                              ? Colors.green
-                                              : Colors.orange,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () {
+                                              // Visualizar detalhes da vaga
+                                              _navegarParaDetalhesVaga(
+                                                vaga,
+                                                index,
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.visibility,
+                                              color: kCorPrimaria,
+                                            ),
+                                            constraints: BoxConstraints(),
+                                            padding: EdgeInsets.all(4),
                                           ),
-                                        ),
-                                        child: Text(
-                                          vaga['status'],
-                                          style: TextStyle(
-                                            fontFamily: 'Montserrat',
-                                            fontSize: 10.0,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                                          SizedBox(
+                                            width: 4,
+                                          ), // Espaçamento reduzido
+                                          IconButton(
+                                            onPressed: () {
+                                              // Deletar vaga
+                                              _mostrarDialogoExclusao(
+                                                context,
+                                                vaga['titulo'],
+                                                index,
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.delete,
+                                              color: kVermelho,
+                                            ),
+                                            constraints: BoxConstraints(),
+                                            padding: EdgeInsets.all(4),
                                           ),
-                                        ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -215,11 +240,6 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
 
                                   Row(
                                     children: [
-                                      Icon(
-                                        Icons.attach_money,
-                                        size: 16,
-                                        color: Colors.green,
-                                      ),
                                       SizedBox(width: 4),
                                       Text(
                                         'R\$ ${vaga['salario']}',
@@ -249,9 +269,9 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                                     ],
                                   ),
 
-                                  SizedBox(height: 8.0),
+                                  SizedBox(height: 28.0),
 
-                                  // Nível de Experiência e Modelo de Trabalho
+                                  // BADGES Nível de Experiência e Modelo de Trabalho e candidatos inscritos
                                   Row(
                                     children: [
                                       // Nível de Experiência
@@ -305,7 +325,7 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                                             ),
                                             SizedBox(width: 4),
                                             Text(
-                                              vaga['modeloTrabalho'] ?? 'N/A',
+                                              vaga['modeloTrabalho'],
                                               style: TextStyle(
                                                 fontFamily: 'Montserrat',
                                                 fontSize: 12.0,
@@ -316,96 +336,46 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                                           ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 12.0),
-
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.people,
-                                            size: 16,
-                                            color: kCorSecundaria,
+                                      SizedBox(width: 8),
+                                      // Badge Candidatos
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: kCorPrimaria.withValues(
+                                            alpha: 0.1,
                                           ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            '${vaga['candidatos']} candidatos',
-                                            style: TextStyle(
-                                              fontFamily: 'Montserrat',
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.w600,
-                                              color: kCorSecundaria,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.person,
+                                              size: 12,
+                                              color: kCorPrimaria,
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              // Editar vaga
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Editando: ${vaga['titulo']}',
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            icon: Icon(
-                                              Icons.edit,
-                                              color: Colors.blue,
+                                            SizedBox(width: 4),
+                                            Text(
+                                              '${vaga['candidatos']}',
+                                              style: TextStyle(
+                                                fontFamily: 'Montserrat',
+                                                fontSize: 12.0,
+                                                fontWeight: FontWeight.w600,
+                                                color: kCorPrimaria,
+                                              ),
                                             ),
-                                            constraints: BoxConstraints(),
-                                            padding: EdgeInsets.all(8),
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              // Ver candidatos
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    'Ver candidatos de: ${vaga['titulo']}',
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            icon: Icon(
-                                              Icons.visibility,
-                                              color: Colors.green,
-                                            ),
-                                            constraints: BoxConstraints(),
-                                            padding: EdgeInsets.all(8),
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              // Deletar vaga
-                                              _mostrarDialogoExclusao(
-                                                context,
-                                                vaga['titulo'],
-                                                index,
-                                              );
-                                            },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
-                                            ),
-                                            constraints: BoxConstraints(),
-                                            padding: EdgeInsets.all(8),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
+
+                                  SizedBox(height: 2.0),
                                 ],
                               ),
                             );
@@ -430,55 +400,168 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
   void _mostrarDialogoExclusao(BuildContext context, String titulo, int index) {
     showDialog(
       context: context,
+      barrierDismissible: false, // Impede fechar tocando fora
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-            'Excluir Vaga',
-            style: TextStyle(
-              fontFamily: 'Montserrat',
-              fontWeight: FontWeight.w700,
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16), // Bordas arredondadas
           ),
-          content: Text(
-            'Tem certeza que deseja excluir a vaga "$titulo"?',
-            style: TextStyle(fontFamily: 'Montserrat'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cancelar',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+          backgroundColor: Colors.white,
+          elevation: 8,
+          contentPadding: EdgeInsets.zero,
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            padding: EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
             ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  VagasCadastradasScreen.vagas.removeAt(index);
-                });
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Vaga "$titulo" excluída com sucesso!'),
-                    backgroundColor: Colors.red,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Ícone de aviso
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
                   ),
-                );
-              },
-              child: Text(
-                'Excluir',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.red,
+                  child: Icon(
+                    Icons.delete_outline,
+                    size: 32,
+                    color: Colors.red,
+                  ),
                 ),
-              ),
+
+                SizedBox(height: 16),
+
+                // Título
+                Text(
+                  'Excluir Vaga',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: kPreto,
+                  ),
+                ),
+
+                SizedBox(height: 12),
+
+                // Conteúdo
+                Text(
+                  'Tem certeza que deseja excluir a vaga "$titulo"?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                ),
+
+                Text(
+                  'Esta ação não pode ser desfeita.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[500],
+                    height: 1.4,
+                  ),
+                ),
+
+                SizedBox(height: 24),
+
+                // Botões
+                Row(
+                  children: [
+                    // Botão Cancelar
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.grey[100],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Text(
+                            'Cancelar',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(width: 12),
+
+                    // Botão Excluir
+                    Expanded(
+                      child: Container(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              VagasCadastradasScreen.vagas.removeAt(index);
+                            });
+                            Navigator.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Vaga "$titulo" excluída com sucesso!',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                margin: EdgeInsets.all(16),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          child: Text(
+                            'Excluir',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

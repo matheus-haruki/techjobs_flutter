@@ -2,8 +2,8 @@ import 'package:TechJobs/components/input.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:TechJobs/constants.dart';
-import 'package:TechJobs/screens/candidato_screen.dart';
-import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
+import 'package:TechJobs/screens/candidato/candidato_screen.dart';
+import 'package:TechJobs/screens/cadastro/escolha_cadastro_screen.dart';
 import 'package:TechJobs/services/api_services.dart'; // Garanta que este caminho está correto
 
 class LoginScreen extends StatefulWidget {
@@ -76,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Stack(
         children: [
@@ -100,9 +99,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       hintText: "Digite seu e-mail",
-                      corInput: CorInput.Primaria,
+                      corInput: CorInput.Secundaria,
                       label: "E-mail:",
-                      prefixIcon: const Icon(Icons.email)
+                      prefixIcon: const Icon(Icons.email),
                     ),
                     const SizedBox(height: 30.0),
                     Input(
@@ -165,8 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 12.0,
                               fontWeight: FontWeight.w700,
                               color: kCorPrimaria,
-                              decoration: TextDecoration.underline
-
+                              decoration: TextDecoration.underline,
                             ),
                           ),
                         ),

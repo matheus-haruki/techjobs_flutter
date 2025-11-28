@@ -1,4 +1,4 @@
-import 'package:TechJobs/screens/empresa_screen.dart';
+import 'package:TechJobs/screens/empresa/empresa_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'login_screen.dart';
