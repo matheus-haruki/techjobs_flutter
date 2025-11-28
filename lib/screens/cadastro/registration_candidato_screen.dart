@@ -1,4 +1,3 @@
-import 'package:TechJobs/screens/cadastro/confirmacao_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import '../../components/input.dart';
@@ -6,6 +5,7 @@ import 'login_screen.dart';
 import '../../services/api_services.dart';
 import '../../models/candidato_model.dart';
 import 'package:flutter/services.dart';
+import '../candidato/candidate_main_page.dart';
 
 class CpfFormatter extends TextInputFormatter {
   @override
@@ -56,6 +56,7 @@ class _RegistrationCandidatoScreenState
   final _senhaController = TextEditingController();
   final _confirmaSenhaController = TextEditingController();
   final _senhaFocusNode = FocusNode();
+  final _confirmSenhaFocusNode = FocusNode();
 
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
@@ -68,6 +69,8 @@ class _RegistrationCandidatoScreenState
   bool _hasUppercase = false;
   bool _hasLowercase = false;
   bool _showPasswordValidation = false;
+  bool _showConfirmPasswordValidation = false;
+  bool _passwordsMatch = true;
 
   @override
   void initState() {
@@ -76,6 +79,13 @@ class _RegistrationCandidatoScreenState
     _senhaFocusNode.addListener(() {
       setState(() {
         _showPasswordValidation = _senhaFocusNode.hasFocus;
+      });
+    });
+
+    // Adicionar listener para o foco do campo de confirmação de senha
+    _confirmSenhaFocusNode.addListener(() {
+      setState(() {
+        _showConfirmPasswordValidation = _confirmSenhaFocusNode.hasFocus;
       });
     });
   }
@@ -88,6 +98,7 @@ class _RegistrationCandidatoScreenState
     _senhaController.dispose();
     _confirmaSenhaController.dispose();
     _senhaFocusNode.dispose();
+    _confirmSenhaFocusNode.dispose();
     super.dispose();
   }
 
@@ -97,6 +108,17 @@ class _RegistrationCandidatoScreenState
       _hasNumber = password.contains(RegExp(r'[0-9]'));
       _hasUppercase = password.contains(RegExp(r'[A-Z]'));
       _hasLowercase = password.contains(RegExp(r'[a-z]'));
+
+      // Verificar se as senhas coincidem quando há texto no campo de confirmação
+      if (_confirmaSenhaController.text.isNotEmpty) {
+        _passwordsMatch = password == _confirmaSenhaController.text;
+      }
+    });
+  }
+
+  void _validateConfirmPassword(String confirmPassword) {
+    setState(() {
+      _passwordsMatch = _senhaController.text == confirmPassword;
     });
   }
 
@@ -178,8 +200,8 @@ class _RegistrationCandidatoScreenState
       await _apiService.cadastrarCandidato(novoCandidato);
 
       if (mounted) {
-        // Verifica se o widget ainda está na tela antes de navegar
-        Navigator.pushReplacementNamed(context, ConfirmacaoScreen.id);
+        // Navegação direta para a página principal do candidato
+        Navigator.pushReplacementNamed(context, CandidateMainPage.id);
       }
     } catch (e) {
       if (mounted) {
@@ -333,8 +355,10 @@ class _RegistrationCandidatoScreenState
                         label: 'Confirme sua senha',
                         corInput: CorInput.Primaria,
                         controller: _confirmaSenhaController,
+                        focusNode: _confirmSenhaFocusNode,
                         hintText: 'Confirme a senha',
                         obscureText: _obscureConfirmPassword,
+                        onChanged: _validateConfirmPassword,
                         prefixIcon: Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -350,6 +374,39 @@ class _RegistrationCandidatoScreenState
                           },
                         ),
                       ),
+                      // Mostrar validação de senhas iguais apenas quando há foco no campo de confirmação
+                      if (_showConfirmPasswordValidation &&
+                          _confirmaSenhaController.text.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _passwordsMatch
+                                    ? Icons.check_circle
+                                    : Icons.cancel,
+                                size: 16,
+                                color: _passwordsMatch
+                                    ? Colors.green
+                                    : kVermelho,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                _passwordsMatch
+                                    ? 'As senhas coincidem'
+                                    : 'As senhas devem coincidir',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: _passwordsMatch
+                                      ? Colors.green
+                                      : kVermelho,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       SizedBox(height: 26.0),
                       BtnPadrao(
                         title: 'Finalizar Cadastro',
@@ -376,7 +433,10 @@ class _RegistrationCandidatoScreenState
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                               onPressed: () {
-                                Navigator.pushNamed(context, LoginScreen.id);
+                                Navigator.pushNamed(
+                                  context,
+                                  CandidateMainPage.id,
+                                );
                               },
                               child: Text(
                                 'Faça o login',

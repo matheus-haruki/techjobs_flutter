@@ -99,10 +99,10 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
         'Vagas Cadastradas',
         icon: false,
         icone: Icons.list_alt,
-        gradientStart: kCorPrimaria,
-        gradientEnd: kCorPrimariaEscura,
+        gradientStart: kCorSecundaria,
+        gradientEnd: kCorSecundariaEscura,
       ),
-      backgroundColor: kCorPrimaria,
+      backgroundColor: kCorSecundaria,
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,7 +141,7 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: kCorPrimariaEscura,
+                              color: kCorSecundariaEscura,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -164,219 +164,206 @@ class _VagasCadastradasScreenState extends State<VagasCadastradasScreen> {
                           itemBuilder: (context, index) {
                             final vaga = VagasCadastradasScreen.vagas[index];
 
-                            return Container(
-                              margin: EdgeInsets.only(bottom: 16.0),
-                              padding: EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.05),
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          vaga['titulo'],
+                            return InkWell(
+                              onTap: () {
+                                // Navegar para detalhes da vaga ao clicar no card
+                                _navegarParaDetalhesVaga(vaga, index);
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                margin: EdgeInsets.only(bottom: 16.0),
+                                padding: EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            vaga['titulo'],
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.w800,
+                                              color: kPreto,
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            // Deletar vaga
+                                            _mostrarDialogoExclusao(
+                                              context,
+                                              vaga['titulo'],
+                                              index,
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.delete,
+                                            color: kVermelho,
+                                          ),
+                                          constraints: BoxConstraints(),
+                                          padding: EdgeInsets.all(4),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8.0),
+
+                                    Row(
+                                      children: [
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'R\$ ${vaga['salario']}',
                                           style: TextStyle(
                                             fontFamily: 'Montserrat',
-                                            fontSize: 18.0,
-                                            fontWeight: FontWeight.w800,
-                                            color: kPreto,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.green,
                                           ),
                                         ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              // Visualizar detalhes da vaga
-                                              _navegarParaDetalhesVaga(
-                                                vaga,
-                                                index,
-                                              );
-                                            },
-                                            icon: Icon(
-                                              Icons.visibility,
-                                              color: kCorPrimaria,
-                                            ),
-                                            constraints: BoxConstraints(),
-                                            padding: EdgeInsets.all(4),
-                                          ),
-                                          SizedBox(
-                                            width: 4,
-                                          ), // Espaçamento reduzido
-                                          IconButton(
-                                            onPressed: () {
-                                              // Deletar vaga
-                                              _mostrarDialogoExclusao(
-                                                context,
-                                                vaga['titulo'],
-                                                index,
-                                              );
-                                            },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color: kVermelho,
-                                            ),
-                                            constraints: BoxConstraints(),
-                                            padding: EdgeInsets.all(4),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 8.0),
-
-                                  Row(
-                                    children: [
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'R\$ ${vaga['salario']}',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.green,
-                                        ),
-                                      ),
-                                      SizedBox(width: 16),
-                                      Icon(
-                                        Icons.location_on,
-                                        size: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        vaga['localizacao'],
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.w500,
+                                        SizedBox(width: 16),
+                                        Icon(
+                                          Icons.location_on,
+                                          size: 16,
                                           color: Colors.grey[600],
                                         ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 28.0),
-
-                                  // BADGES Nível de Experiência e Modelo de Trabalho e candidatos inscritos
-                                  Row(
-                                    children: [
-                                      // Nível de Experiência
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: kCorPrimaria.withValues(
-                                            alpha: 0.1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          vaga['nivelExperiencia'] ?? 'N/A',
+                                        SizedBox(width: 4),
+                                        Text(
+                                          vaga['localizacao'],
                                           style: TextStyle(
                                             fontFamily: 'Montserrat',
-                                            fontSize: 12.0,
-                                            fontWeight: FontWeight.w600,
-                                            color: kCorPrimaria,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      // Modelo de Trabalho
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: kCorSecundaria.withValues(
-                                            alpha: 0.1,
+                                      ],
+                                    ),
+
+                                    SizedBox(height: 28.0),
+
+                                    // BADGES Nível de Experiência e Modelo de Trabalho e candidatos inscritos
+                                    Row(
+                                      children: [
+                                        // Nível de Experiência
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
                                           ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              _getModeloIcon(
-                                                vaga['modeloTrabalho'],
-                                              ),
-                                              size: 12,
-                                              color: kCorSecundaria,
+                                          decoration: BoxDecoration(
+                                            color: kCorPrimaria.withValues(
+                                              alpha: 0.1,
                                             ),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              vaga['modeloTrabalho'],
-                                              style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.w600,
-                                                color: kCorSecundaria,
-                                              ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      // Badge Candidatos
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: kCorPrimaria.withValues(
-                                            alpha: 0.1,
                                           ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.person,
-                                              size: 12,
+                                          child: Text(
+                                            vaga['nivelExperiencia'] ?? 'N/A',
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.w600,
                                               color: kCorPrimaria,
                                             ),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              '${vaga['candidatos']}',
-                                              style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        // Modelo de Trabalho
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: kCorSecundaria.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                _getModeloIcon(
+                                                  vaga['modeloTrabalho'],
+                                                ),
+                                                size: 12,
+                                                color: kCorSecundaria,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                vaga['modeloTrabalho'],
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: kCorSecundaria,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        // Badge Candidatos
+                                        Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: kCorPrimaria.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.person,
+                                                size: 12,
                                                 color: kCorPrimaria,
                                               ),
-                                            ),
-                                          ],
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '${vaga['candidatos']}',
+                                                style: TextStyle(
+                                                  fontFamily: 'Montserrat',
+                                                  fontSize: 12.0,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: kCorPrimaria,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
 
-                                  SizedBox(height: 2.0),
-                                ],
+                                    SizedBox(height: 2.0),
+                                  ],
+                                ),
                               ),
                             );
                           },

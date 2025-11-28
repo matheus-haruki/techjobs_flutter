@@ -40,10 +40,10 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
         'Área da Empresa',
         icon: false,
         icone: Icons.add_circle_outline,
-        gradientStart: kCorPrimaria,
-        gradientEnd: kCorPrimariaEscura,
+        gradientStart: kCorSecundaria,
+        gradientEnd: kCorSecundariaEscura,
       ),
-      backgroundColor: kCorPrimaria,
+      backgroundColor: kCorSecundaria,
       body: SafeArea(
         child: Column(
           children: [
@@ -116,7 +116,43 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
                       ),
 
                       SizedBox(height: 24),
-
+                      Container(
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.1),
+                              blurRadius: 8,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatCard(
+                              '12',
+                              'Vagas Ativas',
+                              kCorSecundaria,
+                            ),
+                            Container(
+                              height: 50,
+                              width: 1,
+                              color: Colors.grey[300],
+                            ),
+                            _buildStatCard('85', 'Candidatos', kCorSecundaria),
+                            Container(
+                              height: 50,
+                              width: 1,
+                              color: Colors.grey[300],
+                            ),
+                            _buildStatCard('7', 'Aprovações', Colors.green),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 25),
                       // Ações Rápidas
                       Text(
                         'Ações Rápidas',
@@ -137,7 +173,7 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
                               icon: Icons.add_circle_outline,
                               title: 'Criar Vaga',
                               description: 'Publique uma nova vaga de emprego',
-                              color: kCorPrimaria,
+                              color: kCorSecundaria,
                               onTap: () => _onTabTapped(1),
                             ),
                           ),
@@ -147,7 +183,7 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
                               icon: Icons.list_alt,
                               title: 'Minhas Vagas',
                               description: 'Gerencie suas vagas publicadas',
-                              color: kCorPrimaria,
+                              color: kCorSecundaria,
                               onTap: () => _onTabTapped(2),
                             ),
                           ),
@@ -157,49 +193,6 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
                       SizedBox(height: 24),
 
                       // Estatísticas
-                      Text(
-                        'Estatísticas',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: kPreto,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-
-                      Container(
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatCard('12', 'Vagas Ativas', kCorPrimaria),
-                            Container(
-                              height: 50,
-                              width: 1,
-                              color: Colors.grey[300],
-                            ),
-                            _buildStatCard('85', 'Candidatos', kCorPrimaria),
-                            Container(
-                              height: 50,
-                              width: 1,
-                              color: Colors.grey[300],
-                            ),
-                            _buildStatCard('7', 'Aprovações', Colors.green),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),

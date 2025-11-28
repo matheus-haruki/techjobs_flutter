@@ -172,10 +172,10 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
         'Cadastrar Vaga',
         icon: false,
         icone: Icons.add_circle_outline,
-        gradientStart: kCorPrimaria,
-        gradientEnd: kCorPrimariaEscura,
+        gradientStart: kCorSecundaria,
+        gradientEnd: kCorSecundariaEscura,
       ),
-      backgroundColor: kCorPrimaria,
+      backgroundColor: kCorSecundaria,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -212,7 +212,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                           // Título da Vaga
                           Input(
                             label: 'Título da Vaga',
-                            corInput: CorInput.Primaria,
+                            corInput: CorInput.Secundaria,
                             controller: _tituloController,
                             hintText: 'Ex: Desenvolvedor Flutter',
                           ),
@@ -221,7 +221,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                           // Descrição
                           Input(
                             label: 'Descrição da Vaga',
-                            corInput: CorInput.Primaria,
+                            corInput: CorInput.Secundaria,
                             controller: _descricaoController,
                             hintText:
                                 'Descreva as responsabilidades e requisitos',
@@ -236,7 +236,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                               Expanded(
                                 child: Input(
                                   label: 'Salário (R\$)',
-                                  corInput: CorInput.Primaria,
+                                  corInput: CorInput.Secundaria,
                                   controller: _salarioController,
                                   hintText: 'Ex: 5.000,00',
                                   keyboardType: TextInputType.number,
@@ -246,7 +246,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                               Expanded(
                                 child: Input(
                                   label: 'Localização',
-                                  corInput: CorInput.Primaria,
+                                  corInput: CorInput.Secundaria,
                                   controller: _localizacaoController,
                                   hintText: 'São Paulo, SP',
                                 ),
@@ -263,7 +263,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                               Expanded(
                                 child: InputDropdown(
                                   label: 'Nível',
-                                  corInput: CorInput.Primaria,
+                                  corInput: CorInput.Secundaria,
                                   currentValue: _nivelExperiencia,
                                   hintText: 'Nível',
                                   items: _niveisExperiencia,
@@ -276,7 +276,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                               Expanded(
                                 child: InputDropdown(
                                   label: 'Modelo',
-                                  corInput: CorInput.Primaria,
+                                  corInput: CorInput.Secundaria,
                                   currentValue: _modeloTrabalho,
                                   hintText: 'Modelo',
                                   items: _modelosTrabalho,
@@ -294,7 +294,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                             child: Container(
                               child: BtnPadrao(
                                 title: 'Publicar Vaga',
-                                color: kCorPrimaria,
+                                color: kCorSecundaria,
                                 onPressed: _publicarVaga,
                               ),
                             ),

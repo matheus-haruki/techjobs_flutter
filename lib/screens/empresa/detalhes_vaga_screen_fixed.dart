@@ -133,11 +133,11 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
     return Scaffold(
       appBar: appbar(
         context,
-        'Inscritos',
+        'Aplicações',
         icon: false,
         icone: Icons.list_alt,
-        gradientStart: kCorPrimaria,
-        gradientEnd: kCorPrimariaEscura,
+        gradientStart: kCorSecundaria,
+        gradientEnd: kCorSecundariaEscura,
       ),
       backgroundColor: kCorPrimaria,
       body: SafeArea(

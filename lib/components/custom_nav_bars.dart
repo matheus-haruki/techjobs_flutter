@@ -40,10 +40,7 @@ class CandidatoNav extends StatelessWidget {
           fontSize: 12,
         ),
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Buscar Vagas',
@@ -63,11 +60,8 @@ class EmpresaNav extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  const EmpresaNav({
-    Key? key,
-    required this.currentIndex,
-    required this.onTap,
-  }) : super(key: key);
+  const EmpresaNav({Key? key, required this.currentIndex, required this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +92,7 @@ class EmpresaNav extends StatelessWidget {
           fontSize: 12,
         ),
         items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
             label: 'Criar Vagas',

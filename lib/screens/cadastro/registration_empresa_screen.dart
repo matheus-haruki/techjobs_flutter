@@ -58,6 +58,35 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
   final TextEditingController _cnpjController = TextEditingController();
   final TextEditingController _senhaController = TextEditingController();
   final TextEditingController _confirmSenhaController = TextEditingController();
+  final _senhaFocusNode = FocusNode();
+  final _confirmSenhaFocusNode = FocusNode();
+
+  // Validação de senha
+  bool _hasMinLength = false;
+  bool _hasNumber = false;
+  bool _hasUppercase = false;
+  bool _hasLowercase = false;
+  bool _showPasswordValidation = false;
+  bool _showConfirmPasswordValidation = false;
+  bool _passwordsMatch = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Adicionar listener para o foco do campo de senha
+    _senhaFocusNode.addListener(() {
+      setState(() {
+        _showPasswordValidation = _senhaFocusNode.hasFocus;
+      });
+    });
+
+    // Adicionar listener para o foco do campo de confirmação de senha
+    _confirmSenhaFocusNode.addListener(() {
+      setState(() {
+        _showConfirmPasswordValidation = _confirmSenhaFocusNode.hasFocus;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -66,7 +95,58 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
     _cnpjController.dispose();
     _senhaController.dispose();
     _confirmSenhaController.dispose();
+    _senhaFocusNode.dispose();
+    _confirmSenhaFocusNode.dispose();
     super.dispose();
+  }
+
+  void _validatePassword(String password) {
+    setState(() {
+      _hasMinLength = password.length > 8;
+      _hasNumber = password.contains(RegExp(r'[0-9]'));
+      _hasUppercase = password.contains(RegExp(r'[A-Z]'));
+      _hasLowercase = password.contains(RegExp(r'[a-z]'));
+
+      // Verificar se as senhas coincidem quando há texto no campo de confirmação
+      if (_confirmSenhaController.text.isNotEmpty) {
+        _passwordsMatch = password == _confirmSenhaController.text;
+      }
+    });
+  }
+
+  void _validateConfirmPassword(String confirmPassword) {
+    setState(() {
+      _passwordsMatch = _senhaController.text == confirmPassword;
+    });
+  }
+
+  bool _isPasswordValid() {
+    return _hasMinLength && _hasNumber && _hasUppercase && _hasLowercase;
+  }
+
+  Widget _buildPasswordRequirement(String requirement, bool isValid) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        children: [
+          Icon(
+            isValid ? Icons.check_circle : Icons.cancel,
+            size: 16,
+            color: isValid ? Colors.green : kVermelho,
+          ),
+          SizedBox(width: 8),
+          Text(
+            requirement,
+            style: TextStyle(
+              fontFamily: 'Montserrat',
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isValid ? Colors.green : kVermelho,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -143,8 +223,10 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
                         label: 'Senha',
                         corInput: CorInput.Secundaria,
                         controller: _senhaController,
+                        focusNode: _senhaFocusNode,
                         hintText: 'Crie uma senha',
                         obscureText: _obscurePassword,
+                        onChanged: _validatePassword,
                         prefixIcon: Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -159,6 +241,46 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
                           },
                         ),
                       ),
+                      SizedBox(height: 5),
+                      // Mostrar validação apenas quando o campo está em foco
+                      if (_showPasswordValidation)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                //condições da senha
+                                Text(
+                                  'A senha deve conter: ',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: kPreto,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                _buildPasswordRequirement(
+                                  'Mais de 8 caracteres',
+                                  _hasMinLength,
+                                ),
+                                _buildPasswordRequirement(
+                                  'Pelo menos 1 número',
+                                  _hasNumber,
+                                ),
+                                _buildPasswordRequirement(
+                                  'Uma letra maiúscula',
+                                  _hasUppercase,
+                                ),
+                                _buildPasswordRequirement(
+                                  'Uma letra minúscula',
+                                  _hasLowercase,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       SizedBox(height: 12.0),
 
                       // Confirmar Senha
@@ -166,8 +288,10 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
                         label: 'Confirme sua senha',
                         corInput: CorInput.Secundaria,
                         controller: _confirmSenhaController,
+                        focusNode: _confirmSenhaFocusNode,
                         hintText: 'Confirme a senha',
                         obscureText: _obscureConfirmPassword,
+                        onChanged: _validateConfirmPassword,
                         prefixIcon: Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -183,11 +307,83 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
                           },
                         ),
                       ),
+                      // Mostrar validação de senhas iguais apenas quando há foco no campo de confirmação
+                      if (_showConfirmPasswordValidation &&
+                          _confirmSenhaController.text.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _passwordsMatch
+                                    ? Icons.check_circle
+                                    : Icons.cancel,
+                                size: 16,
+                                color: _passwordsMatch
+                                    ? Colors.green
+                                    : kVermelho,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                _passwordsMatch
+                                    ? 'As senhas coincidem'
+                                    : 'As senhas devem coincidir',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: _passwordsMatch
+                                      ? Colors.green
+                                      : kVermelho,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       SizedBox(height: 26.0),
                       BtnPadrao(
                         title: 'Finalizar Cadastro',
                         color: kCorSecundaria,
                         onPressed: () {
+                          // Validação básica
+                          if (_nomeEmpresaController.text.isEmpty ||
+                              _emailController.text.isEmpty ||
+                              _cnpjController.text.isEmpty ||
+                              _senhaController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Por favor, preencha todos os campos.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          // Validação da força da senha
+                          if (!_isPasswordValid()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'A senha não atende aos critérios de segurança.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (!_passwordsMatch) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('As senhas não coincidem.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                            return;
+                          }
+
                           Navigator.pushNamed(context, EmpresaScreen.id);
                         },
                       ),
@@ -211,7 +407,7 @@ class _RegistrationEmpresaScreenState extends State<RegistrationEmpresaScreen> {
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                               onPressed: () {
-                                Navigator.pushNamed(context, LoginScreen.id);
+                                Navigator.pushNamed(context, EmpresaScreen.id);
                               },
                               child: Text(
                                 'Faça o login',

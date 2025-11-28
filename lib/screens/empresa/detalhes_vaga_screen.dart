@@ -176,13 +176,13 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
     return Scaffold(
       appBar: appbar(
         context,
-        'Inscritos',
+        'Aplicações',
         icon: false,
         icone: Icons.list_alt,
-        gradientStart: kCorPrimaria,
-        gradientEnd: kCorPrimariaEscura,
+        gradientStart: kCorSecundaria,
+        gradientEnd: kCorSecundariaEscura,
       ),
-      backgroundColor: kCorPrimaria,
+      backgroundColor: kCorSecundaria,
       body: SafeArea(
         child: Column(
           children: [
@@ -334,7 +334,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Candidatos Inscritos',
+                            'Candidatos',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 20.0,
@@ -348,7 +348,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: kCorPrimaria,
+                              color: kCorSecundaria,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(

@@ -3,6 +3,7 @@ import 'package:TechJobs/screens/cadastro/registration_candidato_screen.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/screens/cadastro/registration_empresa_screen.dart';
 import 'package:flutter_svg/svg.dart';
+import 'dart:io';
 
 class EscolhaCadastroScreen extends StatefulWidget {
   static const String id = 'escolha_cadastro_screen'; // ID único para esta tela
@@ -20,6 +21,7 @@ class _EscolhaCadastroScreenState extends State<EscolhaCadastroScreen> {
         padding: const EdgeInsets.all(50.0),
         child: Column(
           children: [
+            if (Platform.isIOS) SizedBox(height: 45),
             SizedBox(height: 72, child: Image.asset('assets/images/logo.png')),
             SizedBox(height: 35.0),
             Center(
@@ -82,7 +84,7 @@ class BotaoEscolha extends StatelessWidget {
                 border: Border.all(color: Colors.grey[300]!, width: 2.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha: 0.2),
                     spreadRadius: 2,
                     blurRadius: 5,
                     offset: Offset(0, 3),
