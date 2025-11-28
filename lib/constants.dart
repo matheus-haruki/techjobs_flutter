@@ -35,7 +35,6 @@ class BtnPadrao extends StatelessWidget {
     super.key,
     required this.title,
     this.color,
-    // CORREÇÃO 2: 'onPressed' não é mais 'required'.
     this.onPressed,
   });
 
@@ -52,13 +51,13 @@ class BtnPadrao extends StatelessWidget {
           // Se for nula, o MaterialButton se desabilita automaticamente.
           onPressed: onPressed,
           minWidth: 200.0,
-          height: 42.0,
+          height: 50.0,
           child: Text(
             title,
             style: const TextStyle(
               fontFamily: 'Montserrat',
               fontSize: 16.0,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
             ),
           ),
@@ -126,7 +125,7 @@ final kTextFieldDecorationEmpresa = InputDecoration(
   ),
 
   focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderRadius: BorderRadius.all(Radius.circular(10)),
     borderSide: BorderSide(
       width: 3.0,
       color: kCorPrimariaEscura,
@@ -137,7 +136,7 @@ final kTextFieldDecorationEmpresa = InputDecoration(
 const kInputStyle = TextStyle(
   color: Colors.black,
   fontFamily: 'Montserrat',
-  fontWeight: FontWeight.w900,
+  fontWeight: FontWeight.w400,
 );
 
 appbar(

@@ -15,7 +15,8 @@ class FlashChat extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData.dark().copyWith(
-        textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.black54)),
+        textTheme: TextTheme(bodyMedium: TextStyle(color: Colors.black, fontFamily: "Montserrat", fontWeight: FontWeight.w400)),
+        scaffoldBackgroundColor: Colors.white,
       ),
       initialRoute: WelcomeScreen.id,
       routes: {

@@ -1,15 +1,21 @@
 import 'dart:convert';
+import 'package:TechJobs/models/empresa_model.dart';
+import 'package:TechJobs/services/auth.dart';
+import 'package:TechJobs/services/token_manager.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 // ADICIONADO: Import para o pacote de armazenamento seguro.
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/candidato_model.dart';
 
 class ApiService {
-  static const String _baseUrl = "https://apitechjobs.onrender.com";
+  static const String _baseUrl = "https://sftd3lh74q5m2m3mtrr2pqx7gy0elkda.lambda-url.us-east-1.on.aws";
 
   // ADICIONADO: Definição da variável _storage.
   // Agora a classe sabe o que é _storage.
   final _storage = const FlutterSecureStorage();
+
+  final Dio _dio = AuthInterceptor.dio;
 
   /// Função para cadastrar um novo candidato na API.
   Future<void> cadastrarCandidato(Candidato candidato) async {
@@ -34,34 +40,52 @@ class ApiService {
   }
 
   /// Realiza o login, salva o cookie de sessão e retorna os dados do usuário.
-  Future<Map<String, dynamic>> login(String email, String senha) async {
-    final url = Uri.parse('$_baseUrl/login');
+  Future<void> login(String email, String senha) async {
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({'email': email, 'senha': senha}),
+      final response = await _dio.post(
+        "/usuario/token",
+        data: {
+          'login': email,
+          'senha': senha,
+        },
       );
 
+      print(response);
+
       if (response.statusCode == 200) {
-        final String? rawCookie = response.headers['set-cookie'];
-        if (rawCookie != null) {
-          // Agora esta linha funciona, pois _storage existe.
-          await _storage.write(key: 'session_cookie', value: rawCookie);
-          print('SUCESSO: Cookie de sessão salvo!');
-        }
-        return jsonDecode(response.body);
+        final String token = response.data as String;
+
+        await TokenManager.instance.setTokens(token);
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         throw Exception('E-mail ou senha inválidos.');
       } else {
         throw Exception('Falha ao fazer login. Código: ${response.statusCode}');
       }
     } catch (e) {
+      print(e);
       rethrow;
     }
   }
 
+  Future<EmpresaModel> obterDadosEmpresa() async {
+    try {
+      final response = await _dio.get('/empresa');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        print(response.data);
+        // Supondo que você tenha um método fromJson em EmpresaModel
+        return EmpresaModel.fromJson(data);
+      } else {
+        throw Exception('Falha ao obter dados da empresa. Código: ${response.statusCode}');
+      }
+    } catch (e) {
+      // print(e);
+      rethrow;
+    }
+  }
   /// EXEMPLO de como usar o cookie salvo em uma futura requisição.
   Future<void> getMeuPerfil() async {
     // Esta linha também funciona agora.
