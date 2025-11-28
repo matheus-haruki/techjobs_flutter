@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/screens/candidato_screen.dart';
 import 'package:TechJobs/screens/escolha_cadastro_screen.dart';
-import 'package:TechJobs/components/switch.dart';
 import 'package:TechJobs/services/api_services.dart'; // Garanta que este caminho está correto
 
 class LoginScreen extends StatefulWidget {
