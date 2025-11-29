@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/screens/cadastro/registration_candidato_screen.dart';
 import 'package:TechJobs/constants.dart';
@@ -21,7 +22,7 @@ class _EscolhaCadastroScreenState extends State<EscolhaCadastroScreen> {
         padding: const EdgeInsets.all(50.0),
         child: Column(
           children: [
-            if (Platform.isIOS) SizedBox(height: 45),
+            if (!kIsWeb && Platform.isIOS) SizedBox(height: 45),
             SizedBox(height: 72, child: Image.asset('assets/images/logo.png')),
             SizedBox(height: 35.0),
             Center(

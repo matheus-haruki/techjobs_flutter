@@ -1,5 +1,6 @@
 import 'package:TechJobs/screens/cadastro/confirmacao_screen.dart';
 import 'package:TechJobs/screens/empresa/empresa_screen.dart';
+import 'package:TechJobs/services/storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/screens/cadastro/registration_empresa_screen.dart';
 import 'package:TechJobs/screens/welcome_screen.dart';
@@ -15,14 +16,20 @@ import 'package:TechJobs/screens/candidato/detalhes_vaga_screen.dart';
 import 'package:TechJobs/screens/empresa/criar_vagas_screen.dart';
 import 'package:TechJobs/screens/empresa/vagas_cadastradas_screen.dart';
 
-void main() => runApp(TechJobsApp()); // Mudança de nome mais apropriada
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await StorageManager.instance.initialize();
+
+  runApp(TechJobsApp());
+}
 
 class TechJobsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'TechJobs', // Adicionar título do app
+      title: 'TechJobs',
       theme: ThemeData.dark().copyWith(
         textTheme: TextTheme(
           bodyMedium: TextStyle(
@@ -34,17 +41,6 @@ class TechJobsApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
       ),
       initialRoute: WelcomeScreen.id,
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case DetalhesVagaScreen.id:
-            final vaga = settings.arguments as Map<String, dynamic>;
-            return MaterialPageRoute(
-              builder: (context) => DetalhesVagaScreen(vaga: vaga),
-            );
-          default:
-            return null;
-        }
-      },
       routes: {
         WelcomeScreen.id: (context) => WelcomeScreen(),
         LoginScreen.id: (context) => LoginScreen(),
@@ -58,7 +54,6 @@ class TechJobsApp extends StatelessWidget {
         VagasAplicadasScreen.id: (context) => VagasAplicadasScreen(),
         EmpresaScreen.id: (context) => EmpresaScreen(),
         ConfirmacaoScreen.id: (context) => ConfirmacaoScreen(),
-        // Adicionar as rotas que estavam faltando
         CriarVagasScreen.id: (context) => CriarVagasScreen(),
         VagasCadastradasScreen.id: (context) => VagasCadastradasScreen(),
       },

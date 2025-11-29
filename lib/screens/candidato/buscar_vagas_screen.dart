@@ -1,3 +1,8 @@
+import 'package:TechJobs/models/vaga_todas_request.dart';
+import 'package:TechJobs/models/vagas_model.dart';
+import 'package:TechJobs/screens/candidato/detalhes_vaga_screen.dart';
+import 'package:TechJobs/services/api_services.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
@@ -19,26 +24,12 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
   final _salarioInicioController = TextEditingController();
   final _salarioFimController = TextEditingController();
 
-  // Filtros
-  String? _nivelSelecionado;
-  String? _modeloSelecionado;
-
-  // Controle dos dropdowns
-  bool _showNivelDropdown = false;
-  bool _showModeloDropdown = false;
-
   // Controle de filtros ativos
   bool get _hasActiveFilters {
     return _searchController.text.isNotEmpty ||
         _salarioInicioController.text.isNotEmpty ||
-        _salarioFimController.text.isNotEmpty ||
-        _nivelSelecionado != null ||
-        _modeloSelecionado != null;
+        _salarioFimController.text.isNotEmpty;
   }
-
-  // Listas para dropdowns
-  final List<String> _niveis = ['Estagiário', 'Júnior', 'Pleno', 'Sênior'];
-  final List<String> _modelos = ['Presencial', 'Remoto', 'Híbrido'];
 
   void _onTabTapped(int index) {
     setState(() {
@@ -67,13 +58,6 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
     _salarioInicioController.dispose();
     _salarioFimController.dispose();
     super.dispose();
-  }
-
-  void _closeAllDropdowns() {
-    setState(() {
-      _showNivelDropdown = false;
-      _showModeloDropdown = false;
-    });
   }
 
   void _showFilterBottomSheet() {
@@ -126,12 +110,6 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
 
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {
-                      setModalState(() {
-                        _showNivelDropdown = false;
-                        _showModeloDropdown = false;
-                      });
-                    },
                     child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
@@ -160,6 +138,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                                   hintText: 'Ex: 3.000',
                                   keyboardType: TextInputType.number,
                                   prefixIcon: Icon(Icons.attach_money),
+                                  inputFormatters: [_moneyFormatter1],
                                 ),
                               ),
                               SizedBox(width: 16),
@@ -171,61 +150,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                                   hintText: 'Ex: 8.000',
                                   keyboardType: TextInputType.number,
                                   prefixIcon: Icon(Icons.attach_money),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          SizedBox(height: 24),
-
-                          // Nível e Modelo
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: InputDropdown(
-                                  label: 'Nível',
-                                  corInput: CorInput.Primaria,
-                                  currentValue: _nivelSelecionado,
-                                  hintText: 'Nível',
-                                  items: _niveis,
-                                  isOpen: _showNivelDropdown,
-                                  onToggle: () {
-                                    setModalState(() {
-                                      _showNivelDropdown = !_showNivelDropdown;
-                                      _showModeloDropdown = false;
-                                    });
-                                  },
-                                  onSelect: (String nivel) {
-                                    setModalState(() {
-                                      _nivelSelecionado = nivel;
-                                      _showNivelDropdown = false;
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: InputDropdown(
-                                  label: 'Modelo',
-                                  corInput: CorInput.Primaria,
-                                  currentValue: _modeloSelecionado,
-                                  hintText: 'Modelo',
-                                  items: _modelos,
-                                  isOpen: _showModeloDropdown,
-                                  onToggle: () {
-                                    setModalState(() {
-                                      _showModeloDropdown =
-                                          !_showModeloDropdown;
-                                      _showNivelDropdown = false;
-                                    });
-                                  },
-                                  onSelect: (String modelo) {
-                                    setModalState(() {
-                                      _modeloSelecionado = modelo;
-                                      _showModeloDropdown = false;
-                                    });
-                                  },
+                                  inputFormatters: [_moneyFormatter2],
                                 ),
                               ),
                             ],
@@ -271,8 +196,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                                   child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.pop(context);
-                                      // Atualizar o estado principal para refletir mudanças no ícone
-                                      setState(() {});
+                                      _pesquisarVagas();
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: kCorPrimaria,
@@ -308,18 +232,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
   }
 
   void _pesquisarVagas() {
-    // Atualizar estado do botão de filtro
-    setState(() {});
-    // TODO: Implementar lógica de pesquisa
-    String termoPesquisa = _searchController.text;
-    if (termoPesquisa.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Pesquisando por: "$termoPesquisa"'),
-          backgroundColor: kCorPrimaria,
-        ),
-      );
-    }
+    _refresh();
   }
 
   // Lista fictícia de vagas
@@ -398,8 +311,41 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
     },
   ];
 
-  List<Widget> _buildVagasList() {
-    if (_vagasFicticias.isEmpty) {
+  final ApiService _apiService = ApiService();
+
+  late Future<List<Vaga>> _futureVagas;
+
+  late final CurrencyTextInputFormatter _moneyFormatter1;
+  late final CurrencyTextInputFormatter _moneyFormatter2;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureVagas = _apiService.obterVagasCandidato(ObterTodasVagasRequest());
+    _moneyFormatter1 = CurrencyTextInputFormatter.currency(
+      locale: "pt-BR",
+      symbol: "R\$",
+    );
+    _moneyFormatter2 = CurrencyTextInputFormatter.currency(
+      locale: "pt-BR",
+      symbol: "R\$",
+    );
+  }
+
+  void _refresh() {
+    setState(() {
+      _futureVagas = _apiService.obterVagasCandidato(
+        ObterTodasVagasRequest(
+          salarioFim: _moneyFormatter2.getUnformattedValue().toDouble(),
+          salarioInicio: _moneyFormatter1.getUnformattedValue().toDouble(),
+          termoBusca: _searchController.text,
+        ),
+      ); // NEW future = forces reload
+    });
+  }
+
+  List<Widget> _buildVagasList(List<Vaga> vagas) {
+    if (vagas.isEmpty) {
       return [
         Container(
           height: 200,
@@ -424,12 +370,12 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
       ];
     }
 
-    return _vagasFicticias.map((vaga) => _buildVagaCard(vaga)).toList();
+    return vagas.map((vaga) => _buildVagaCard(vaga)).toList();
   }
 
-  Widget _buildVagaCard(Map<String, dynamic> vaga) {
+  Widget _buildVagaCard(Vaga vaga) {
     Color nivelColor;
-    switch (vaga['nivel']) {
+    switch (vaga.nivelExperiencia) {
       case 'Estagiário':
         nivelColor = Colors.blue;
         break;
@@ -447,7 +393,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
     }
 
     Color modeloColor;
-    switch (vaga['modelo']) {
+    switch (vaga.modelo) {
       case 'Remoto':
         modeloColor = Colors.green;
         break;
@@ -475,15 +421,6 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
         ],
       ),
       child: InkWell(
-        onTap: () {
-          // TODO: Navegar para detalhes da vaga
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Abrindo detalhes da vaga: ${vaga['titulo']}'),
-              backgroundColor: kCorPrimaria,
-            ),
-          );
-        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: EdgeInsets.all(16),
@@ -496,7 +433,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      vaga['empresa'],
+                      vaga.nomeEmpresa ?? "",
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 14,
@@ -506,7 +443,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                     ),
                   ),
                   Text(
-                    vaga['dataPublicacao'],
+                    vaga.dataCadastro.toString(),
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 12,
@@ -519,7 +456,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
 
               // Título da vaga
               Text(
-                vaga['titulo'],
+                vaga.nome,
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   fontSize: 18,
@@ -531,7 +468,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
 
               // Descrição
               Text(
-                vaga['descricao'],
+                vaga.descricao,
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   fontSize: 14,
@@ -549,7 +486,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                   Icon(Icons.attach_money, size: 16, color: Colors.green),
                   SizedBox(width: 4),
                   Text(
-                    vaga['salario'],
+                    'R\$ ${vaga.salarioPrevisto}',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 14,
@@ -562,7 +499,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                   SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      vaga['localizacao'],
+                      vaga.cep ?? "",
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 14,
@@ -585,7 +522,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      vaga['nivel'],
+                      vaga.nivelExperiencia,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 12,
@@ -604,7 +541,7 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      vaga['modelo'],
+                      vaga.modelo,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 12,
@@ -619,10 +556,11 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                   // Botão Inscrever-se
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(
+                      Navigator.push(
                         context,
-                        'detalhes_vaga_screen',
-                        arguments: vaga,
+                        MaterialPageRoute(
+                          builder: (context) => DetalhesVagaScreen(vaga: vaga),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -681,7 +619,6 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
                   ),
                 ),
                 child: GestureDetector(
-                  onTap: _closeAllDropdowns,
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
@@ -790,7 +727,17 @@ class _BuscarVagasScreenState extends State<BuscarVagasScreen> {
 
                         // Lista de vagas fictícias
                         SingleChildScrollView(
-                          child: Column(children: _buildVagasList()),
+                          child: FutureBuilder(
+                            future: _futureVagas,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              }
+                              final List<Vaga> vagas = snapshot.data!;
+                              return Column(children: _buildVagasList(vagas));
+                            },
+                          ),
                         ),
                       ],
                     ),

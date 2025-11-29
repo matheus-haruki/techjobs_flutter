@@ -12,6 +12,7 @@ const kBranco = Color(0xFFFFFFFF);
 const kCinza = Color(0xFF686868);
 const kPreto = Color(0xFF000000);
 const kVermelho = Color.fromARGB(255, 255, 0, 0);
+const kVermelhoClaro = Color.fromARGB(255, 255, 99, 99);
 
 const kSendButtonTextStyle = TextStyle(
   color: Colors.lightBlueAccent,

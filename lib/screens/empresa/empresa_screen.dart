@@ -1,3 +1,6 @@
+import 'package:TechJobs/models/dados_usuario_model.dart';
+import 'package:TechJobs/services/api_services.dart';
+import 'package:TechJobs/services/storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
@@ -32,6 +35,8 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
     }
   }
 
+  final ApiService _apiService = ApiService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,160 +50,193 @@ class _EmpresaScreenState extends State<EmpresaScreen> {
       ),
       backgroundColor: kCorSecundaria,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: kCorFundo,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Seção de Boas-vindas
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Bem vindo, (nome da empresa)!',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w600,
-                                          color: kPreto,
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        'Gerencie suas vagas e encontre os melhores talentos',
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+        child: FutureBuilder<UserModel?>(
+          future: StorageManager.instance.getUser(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            }
+
+            final user = snapshot.data;
+
+            return Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: kCorFundo,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Seção de Boas-vindas
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 0.1),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 24),
-                      Container(
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.1),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatCard(
-                              '12',
-                              'Vagas Ativas',
-                              kCorSecundaria,
-                            ),
-                            Container(
-                              height: 50,
-                              width: 1,
-                              color: Colors.grey[300],
-                            ),
-                            _buildStatCard('85', 'Candidatos', kCorSecundaria),
-                            Container(
-                              height: 50,
-                              width: 1,
-                              color: Colors.grey[300],
-                            ),
-                            _buildStatCard('7', 'Aprovações', Colors.green),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 25),
-                      // Ações Rápidas
-                      Text(
-                        'Ações Rápidas',
-                        style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: kPreto,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-
-                      // Cards de Ação
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildActionCard(
-                              icon: Icons.add_circle_outline,
-                              title: 'Criar Vaga',
-                              description: 'Publique uma nova vaga de emprego',
-                              color: kCorSecundaria,
-                              onTap: () => _onTabTapped(1),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Bem vindo, ${user?.nomeUsuario}!',
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w600,
+                                              color: kPreto,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Text(
+                                            'Gerencie suas vagas e encontre os melhores talentos',
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 16),
-                          Expanded(
-                            child: _buildActionCard(
-                              icon: Icons.list_alt,
-                              title: 'Minhas Vagas',
-                              description: 'Gerencie suas vagas publicadas',
-                              color: kCorSecundaria,
-                              onTap: () => _onTabTapped(2),
+
+                          SizedBox(height: 24),
+                          Container(
+                            padding: EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 0.1),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: FutureBuilder(
+                              future: _apiService.obterDadosDashboardEmpresa(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+
+                                final dados = snapshot.data!;
+
+                                return Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    _buildStatCard(
+                                      dados.vagasDisponiveis.toString(),
+                                      'Vagas Ativas',
+                                      kCorSecundaria,
+                                    ),
+                                    Container(
+                                      height: 50,
+                                      width: 1,
+                                      color: Colors.grey[300],
+                                    ),
+                                    _buildStatCard(
+                                      dados.candidatos.toString(),
+                                      'Candidatos',
+                                      kCorSecundaria,
+                                    ),
+                                    Container(
+                                      height: 50,
+                                      width: 1,
+                                      color: Colors.grey[300],
+                                    ),
+                                    _buildStatCard(
+                                      dados.aprovacoes.toString(),
+                                      'Aprovações',
+                                      Colors.green,
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           ),
+                          SizedBox(height: 25),
+                          // Ações Rápidas
+                          Text(
+                            'Ações Rápidas',
+                            style: TextStyle(
+                              fontFamily: 'Montserrat',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: kPreto,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+
+                          // Cards de Ação
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildActionCard(
+                                  icon: Icons.add_circle_outline,
+                                  title: 'Criar Vaga',
+                                  description:
+                                      'Publique uma nova vaga de emprego',
+                                  color: kCorSecundaria,
+                                  onTap: () => _onTabTapped(1),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: _buildActionCard(
+                                  icon: Icons.list_alt,
+                                  title: 'Minhas Vagas',
+                                  description: 'Gerencie suas vagas publicadas',
+                                  color: kCorSecundaria,
+                                  onTap: () => _onTabTapped(2),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          SizedBox(height: 24),
+
+                          // Estatísticas
                         ],
                       ),
-
-                      SizedBox(height: 24),
-
-                      // Estatísticas
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
       bottomNavigationBar: EmpresaNav(

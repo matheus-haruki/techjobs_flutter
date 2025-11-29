@@ -1,4 +1,6 @@
 import 'package:TechJobs/components/input.dart';
+import 'package:TechJobs/screens/candidato/candidate_main_page.dart';
+import 'package:TechJobs/screens/empresa/empresa_screen.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:TechJobs/constants.dart';
@@ -20,11 +22,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureSenha = true;
-  bool _isCandidato = false;
 
   // --- LÓGICA ADICIONADA ---
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -35,13 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   // --- LÓGICA ADICIONADA ---
   Future<void> _submitLogin() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, preencha todos os campos.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -50,14 +47,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await _apiService.login(_emailController.text, _passwordController.text);
-      print(
-        'Login realizado com sucesso para o usuário: ${_emailController.text}',
+      final perfil = await _apiService.login(
+        _emailController.text,
+        _passwordController.text,
       );
 
       if (mounted) {
-        // Navega para a tela principal, substituindo a de login
-        Navigator.pushReplacementNamed(context, CandidatoScreen.id);
+        await perfil.Acao(context);
       }
     } catch (e) {
       if (mounted) {
@@ -86,91 +82,96 @@ class _LoginScreenState extends State<LoginScreen> {
                   horizontal: 24.0,
                   vertical: 50.0,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      height: 60.0,
-                      child: Image.asset('assets/images/logo.png'),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Input(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      hintText: "Digite seu e-mail",
-                      corInput: CorInput.Secundaria,
-                      label: "E-mail:",
-                      prefixIcon: const Icon(Icons.email),
-                    ),
-                    const SizedBox(height: 30.0),
-                    Input(
-                      controller: _passwordController,
-                      corInput: CorInput.Primaria,
-                      hintText: "Digite sua senha",
-                      label: "Senha:",
-                      prefixIcon: const Icon(Icons.lock),
-                      obscureText: _obscureSenha,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureSenha
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureSenha = !_obscureSenha;
-                          });
-                        },
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: 60.0,
+                        child: Image.asset('assets/images/logo.png'),
                       ),
-                    ),
-                    const SizedBox(height: 24.0),
-                    BtnPadrao(
-                      title: 'Entrar',
-                      color: kCorPrimaria,
-                      // CORREÇÃO: A chamada para _submitLogin está agora dentro de uma função anônima () { ... }
-                      onPressed: _isLoading
-                          ? null
-                          : () {
-                              _submitLogin();
-                            },
-                    ),
-                    const SizedBox(height: 12.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Não possui uma conta? ',
-                          style: TextStyle(
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      const SizedBox(height: 20.0),
+                      Input(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        hintText: "Digite seu e-mail",
+                        corInput: CorInput.Secundaria,
+                        label: "E-mail:",
+                        prefixIcon: const Icon(Icons.email),
+                        required: true,
+                      ),
+                      const SizedBox(height: 30.0),
+                      Input(
+                        controller: _passwordController,
+                        corInput: CorInput.Primaria,
+                        hintText: "Digite sua senha",
+                        required: true,
+                        label: "Senha:",
+                        prefixIcon: const Icon(Icons.lock),
+                        obscureText: _obscureSenha,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureSenha
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                           onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              EscolhaCadastroScreen.id,
-                            );
+                            setState(() {
+                              _obscureSenha = !_obscureSenha;
+                            });
                           },
-                          child: Text(
-                            'Registre-se aqui',
+                        ),
+                      ),
+                      const SizedBox(height: 24.0),
+                      BtnPadrao(
+                        title: 'Entrar',
+                        color: kCorPrimaria,
+                        // CORREÇÃO: A chamada para _submitLogin está agora dentro de uma função anônima () { ... }
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                _submitLogin();
+                              },
+                      ),
+                      const SizedBox(height: 12.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Não possui uma conta? ',
                             style: TextStyle(
                               fontSize: 12.0,
                               fontWeight: FontWeight.w700,
-                              color: kCorPrimaria,
-                              decoration: TextDecoration.underline,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                EscolhaCadastroScreen.id,
+                              );
+                            },
+                            child: Text(
+                              'Registre-se aqui',
+                              style: TextStyle(
+                                fontSize: 12.0,
+                                fontWeight: FontWeight.w700,
+                                color: kCorPrimaria,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

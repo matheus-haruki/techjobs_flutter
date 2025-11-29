@@ -1,3 +1,5 @@
+import 'package:TechJobs/services/api_services.dart';
+import 'package:TechJobs/services/storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
@@ -37,6 +39,8 @@ class _CandidateMainPageState extends State<CandidateMainPage> {
         break;
     }
   }
+
+  final ApiService _apiService = ApiService();
 
   Widget _buildHomePage() {
     return SafeArea(
@@ -78,29 +82,42 @@ class _CandidateMainPageState extends State<CandidateMainPage> {
                             children: [
                               SizedBox(width: 12),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Bem vindo, (nome do candidato)!',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.w600,
-                                        color: kPreto,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      'Encontre as melhores oportunidades em tecnologia',
-                                      style: TextStyle(
-                                        fontFamily: 'Montserrat',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
+                                child: FutureBuilder(
+                                  future: StorageManager.instance.getUser(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
+                                    }
+
+                                    final user = snapshot.data!;
+
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Bem vindo, ${user.nomeUsuario}!',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w600,
+                                            color: kPreto,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          'Encontre as melhores oportunidades em tecnologia',
+                                          style: TextStyle(
+                                            fontFamily: 'Montserrat',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                             ],
@@ -125,25 +142,36 @@ class _CandidateMainPageState extends State<CandidateMainPage> {
                           ),
                         ],
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatCard(
-                            '12',
-                            'Vagas\nAplicadas',
-                            kCorPrimaria,
-                          ),
-                          _buildStatCard(
-                            '3',
-                            'Processos\nAtivos',
-                            kCorSecundaria,
-                          ),
-                          _buildStatCard(
-                            '156',
-                            'Novas Vagas\nDisponíveis',
-                            Colors.green,
-                          ),
-                        ],
+                      child: FutureBuilder(
+                        future: _apiService.obterDadosDashboardCandidato(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+
+                          final dados = snapshot.data!;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildStatCard(
+                                dados.vagasAplicadas.toString(),
+                                'Vagas\nAplicadas',
+                                kCorPrimaria,
+                              ),
+                              _buildStatCard(
+                                dados.processosAtivos.toString(),
+                                'Processos\nAtivos',
+                                kCorPrimaria,
+                              ),
+                              _buildStatCard(
+                                dados.vagasDisponiveis.toString(),
+                                'Novas Vagas\nDisponíveis',
+                                Colors.green,
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                     SizedBox(height: 24),
@@ -181,7 +209,7 @@ class _CandidateMainPageState extends State<CandidateMainPage> {
                             icon: Icons.work_outline,
                             title: 'Vagas Aplicadas',
                             description: 'Conheça as empresas parceiras',
-                            color: kCorSecundaria,
+                            color: kCorPrimaria,
                             onTap: () {
                               Navigator.pushNamed(
                                 context,

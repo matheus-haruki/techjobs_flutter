@@ -1,4 +1,4 @@
-import 'package:TechJobs/services/token_manager.dart';
+import 'package:TechJobs/services/storage_manager.dart';
 import 'package:dio/dio.dart';
 
 class AuthInterceptor extends QueuedInterceptor {
@@ -22,11 +22,7 @@ class AuthInterceptor extends QueuedInterceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    print("INTERCEPTOR - onRequest chamado");
-
-    final String? accessToken = await TokenManager.instance.getAccessToken();
-
-    print('Token de acesso: $accessToken');
+    final String? accessToken = await StorageManager.instance.getAccessToken();
 
     if (accessToken != null) {
       options.headers.addAll({'Authorization': 'Bearer ${accessToken}'});

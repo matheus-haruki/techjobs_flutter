@@ -1,9 +1,13 @@
+import 'package:TechJobs/models/vaga_request.dart';
+import 'package:TechJobs/services/formatter.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
 import 'empresa_screen.dart';
 import 'vagas_cadastradas_screen.dart';
 import '../../components/input.dart';
+import 'package:TechJobs/services/api_services.dart';
 
 class CriarVagasScreen extends StatefulWidget {
   static const String id = 'criar_vagas_screen';
@@ -16,23 +20,22 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
   int _currentIndex = 1; // Índice 1 para "Criar Vagas"
 
   // Controladores dos campos
-  final _tituloController = TextEditingController();
+  final _nomeController = TextEditingController();
   final _descricaoController = TextEditingController();
   final _salarioController = TextEditingController();
-  final _localizacaoController = TextEditingController();
+  final _numeroController = TextEditingController();
+  final _cepController = TextEditingController();
 
   // Chave do form para validação
   final _formKey = GlobalKey<FormState>();
+
+  late final CurrencyTextInputFormatter _moneyFormatter;
 
   // Variáveis para os dropdowns
   String? _nivelExperiencia;
   String? _modeloTrabalho;
 
-  // Controle de visibilidade dos dropdowns customizados
-  bool _showNivelDropdown = false;
-  bool _showModeloDropdown = false;
-
-  // Variável para controlar se um dropdown está aberto
+  final ApiService _apiService = ApiService();
 
   // Listas para os dropdowns
   final List<String> _niveisExperiencia = [
@@ -65,73 +68,33 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
     }
   }
 
-  void _toggleNivelDropdown() {
-    setState(() {
-      _showNivelDropdown = !_showNivelDropdown;
-      _showModeloDropdown = false; // Fechar o outro
-    });
-  }
-
-  void _toggleModeloDropdown() {
-    setState(() {
-      _showModeloDropdown = !_showModeloDropdown;
-      _showNivelDropdown = false; // Fechar o outro
-    });
-  }
-
   void _selectNivel(String nivel) {
     setState(() {
       _nivelExperiencia = nivel;
-      _showNivelDropdown = false;
     });
   }
 
   void _selectModelo(String modelo) {
     setState(() {
       _modeloTrabalho = modelo;
-      _showModeloDropdown = false;
     });
   }
 
-  void _closeAllDropdowns() {
-    setState(() {
-      _showNivelDropdown = false;
-      _showModeloDropdown = false;
-    });
-  }
-
-  void _publicarVaga() {
+  Future<void> _publicarVaga() async {
     if (_formKey.currentState!.validate()) {
-      // Validar dropdowns
-      if (_nivelExperiencia == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Nível'), backgroundColor: kVermelho),
-        );
-        return;
-      }
+      final request = AdicionarVagaRequest(
+        nome: _nomeController.text,
+        cargo: _nomeController.text,
+        modelo: _modeloTrabalho ?? "",
+        nivelExperiencia: _nivelExperiencia ?? "",
+        cep: _cepController.text,
+        numero: _numeroController.text,
+        descricao: _descricaoController.text,
+        salarioPrevisto: _moneyFormatter.getUnformattedValue().toDouble(),
+      );
 
-      if (_modeloTrabalho == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Modelo'), backgroundColor: kVermelho),
-        );
-        return;
-      }
+      await _apiService.adicionarVaga(request);
 
-      // Criar a nova vaga
-      // final novaVaga = {
-      //   'titulo': _tituloController.text,
-      //   'descricao': _descricaoController.text,
-      //   'salario': _salarioController.text,
-      //   'localizacao': _localizacaoController.text,
-      //   'nivelExperiencia': _nivelExperiencia,
-      //   'modeloTrabalho': _modeloTrabalho,
-      //   'candidatos': 0,
-      //   'dataPublicacao': DateTime.now(),
-      // };
-
-      // Adicionar a vaga à lista global (ou salvar em banco de dados)
-
-      // Mostrar mensagem de sucesso
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Vaga publicada com sucesso!'),
@@ -141,10 +104,10 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
       );
 
       // Limpar campos
-      _tituloController.clear();
+      _nomeController.clear();
       _descricaoController.clear();
       _salarioController.clear();
-      _localizacaoController.clear();
+      _numeroController.clear();
       setState(() {
         _nivelExperiencia = null;
         _modeloTrabalho = null;
@@ -157,11 +120,21 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
 
   @override
   void dispose() {
-    _tituloController.dispose();
+    _nomeController.dispose();
     _descricaoController.dispose();
     _salarioController.dispose();
-    _localizacaoController.dispose();
+    _numeroController.dispose();
+    _cepController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _moneyFormatter = CurrencyTextInputFormatter.currency(
+      locale: "pt-BR",
+      symbol: "R\$",
+    );
   }
 
   @override
@@ -169,7 +142,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
     return Scaffold(
       appBar: appbar(
         context,
-        'Cadastrar Vaga',
+        'Cadastrar vaga',
         icon: false,
         icone: Icons.add_circle_outline,
         gradientStart: kCorSecundaria,
@@ -190,7 +163,6 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                   ),
                 ),
                 child: GestureDetector(
-                  onTap: _closeAllDropdowns,
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
                     child: Form(
@@ -199,7 +171,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Nova Vaga',
+                            'Informações',
                             style: TextStyle(
                               fontFamily: 'Montserrat',
                               fontSize: 28.0,
@@ -211,9 +183,10 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
 
                           // Título da Vaga
                           Input(
-                            label: 'Título da Vaga',
+                            label: 'Nome da Vaga',
+                            required: true,
                             corInput: CorInput.Secundaria,
-                            controller: _tituloController,
+                            controller: _nomeController,
                             hintText: 'Ex: Desenvolvedor Flutter',
                           ),
                           SizedBox(height: 20.0),
@@ -223,11 +196,22 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                             label: 'Descrição da Vaga',
                             corInput: CorInput.Secundaria,
                             controller: _descricaoController,
+                            required: true,
                             hintText:
                                 'Descreva as responsabilidades e requisitos',
                             maxLines: 3,
                           ),
 
+                          SizedBox(height: 20.0),
+                          Input(
+                            label: 'Salário (R\$)',
+                            corInput: CorInput.Secundaria,
+                            controller: _salarioController,
+                            required: true,
+                            hintText: 'Ex: 5.000,00',
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [_moneyFormatter],
+                          ),
                           SizedBox(height: 20.0),
 
                           // Salário e Localização
@@ -235,20 +219,23 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                             children: [
                               Expanded(
                                 child: Input(
-                                  label: 'Salário (R\$)',
+                                  label: 'CEP',
                                   corInput: CorInput.Secundaria,
-                                  controller: _salarioController,
-                                  hintText: 'Ex: 5.000,00',
+                                  controller: _cepController,
+                                  required: true,
+                                  hintText: 'Ex: 00000-000',
                                   keyboardType: TextInputType.number,
+                                  inputFormatters: [CepFormatter()],
                                 ),
                               ),
                               SizedBox(width: 16.0),
                               Expanded(
                                 child: Input(
-                                  label: 'Localização',
+                                  label: 'Número',
+                                  required: true,
                                   corInput: CorInput.Secundaria,
-                                  controller: _localizacaoController,
-                                  hintText: 'São Paulo, SP',
+                                  controller: _numeroController,
+                                  hintText: '11B',
                                 ),
                               ),
                             ],
@@ -264,12 +251,12 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                                 child: InputDropdown(
                                   label: 'Nível',
                                   corInput: CorInput.Secundaria,
-                                  currentValue: _nivelExperiencia,
-                                  hintText: 'Nível',
+                                  value: _nivelExperiencia,
+                                  itemLabel: (valor) => valor,
                                   items: _niveisExperiencia,
-                                  isOpen: _showNivelDropdown,
-                                  onToggle: _toggleNivelDropdown,
-                                  onSelect: _selectNivel,
+                                  required: true,
+                                  onChanged: (valor) =>
+                                      _selectNivel(valor ?? ""),
                                 ),
                               ),
                               SizedBox(width: 16.0),
@@ -277,12 +264,12 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                                 child: InputDropdown(
                                   label: 'Modelo',
                                   corInput: CorInput.Secundaria,
-                                  currentValue: _modeloTrabalho,
-                                  hintText: 'Modelo',
+                                  value: _modeloTrabalho,
                                   items: _modelosTrabalho,
-                                  isOpen: _showModeloDropdown,
-                                  onToggle: _toggleModeloDropdown,
-                                  onSelect: _selectModelo,
+                                  itemLabel: (valor) => valor,
+                                  required: true,
+                                  onChanged: (valor) =>
+                                      _selectModelo(valor ?? ""),
                                 ),
                               ),
                             ],
@@ -293,7 +280,7 @@ class _CriarVagasScreenState extends State<CriarVagasScreen> {
                           Center(
                             child: Container(
                               child: BtnPadrao(
-                                title: 'Publicar Vaga',
+                                title: 'Adicionar',
                                 color: kCorSecundaria,
                                 onPressed: _publicarVaga,
                               ),

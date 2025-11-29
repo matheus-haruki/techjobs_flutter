@@ -1,3 +1,5 @@
+import 'package:TechJobs/models/vagas_model.dart';
+import 'package:TechJobs/services/api_services.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
@@ -91,8 +93,8 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
     },
   ];
 
-  List<Widget> _buildVagasAplicadasList() {
-    if (_vagasAplicadas.isEmpty) {
+  List<Widget> _buildVagasAplicadasList(List<Vaga> vagas) {
+    if (vagas.isEmpty) {
       return [
         Container(
           height: 300,
@@ -143,12 +145,12 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
       ];
     }
 
-    return _vagasAplicadas.map((vaga) => _buildVagaAplicadaCard(vaga)).toList();
+    return vagas.map((vaga) => _buildVagaAplicadaCard(vaga)).toList();
   }
 
-  Widget _buildVagaAplicadaCard(Map<String, dynamic> vaga) {
+  Widget _buildVagaAplicadaCard(Vaga vaga) {
     Color nivelColor;
-    switch (vaga['nivel']) {
+    switch (vaga.nivelExperiencia) {
       case 'Estagiário':
         nivelColor = Colors.blue;
         break;
@@ -165,8 +167,23 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
         nivelColor = Colors.grey;
     }
 
+    Color statusCor;
+    switch (vaga.situacao) {
+      case 1:
+        statusCor = Colors.orange;
+        break;
+      case 2:
+        statusCor = Colors.green;
+        break;
+      case 3:
+        statusCor = Colors.red;
+        break;
+      default:
+        statusCor = Colors.grey;
+    }
+
     Color modeloColor;
-    switch (vaga['modelo']) {
+    switch (vaga.modelo) {
       case 'Remoto':
         modeloColor = Colors.green;
         break;
@@ -179,6 +196,8 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
       default:
         modeloColor = Colors.grey;
     }
+
+    final situacaoMap = {1: "Em análise", 2: "Aprovado", 3: "Reprovado"};
 
     return Container(
       margin: EdgeInsets.only(bottom: 16),
@@ -194,15 +213,6 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
         ],
       ),
       child: InkWell(
-        onTap: () {
-          // TODO: Navegar para detalhes da aplicação
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Abrindo detalhes da aplicação: ${vaga['titulo']}'),
-              backgroundColor: kCorPrimaria,
-            ),
-          );
-        },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: EdgeInsets.all(16),
@@ -215,7 +225,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      vaga['empresa'],
+                      vaga.nomeEmpresa ?? "",
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 14,
@@ -227,16 +237,16 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: vaga['statusColor'].withValues(alpha: 0.1),
+                      color: statusCor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      vaga['status'],
+                      situacaoMap[vaga.situacao ?? 1] ?? "",
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: vaga['statusColor'],
+                        color: statusCor,
                       ),
                     ),
                   ),
@@ -246,7 +256,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
 
               // Título da vaga
               Text(
-                vaga['titulo'],
+                vaga.nome,
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   fontSize: 18,
@@ -258,7 +268,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
 
               // Descrição
               Text(
-                vaga['descricao'],
+                vaga.descricao,
                 style: TextStyle(
                   fontFamily: 'Montserrat',
                   fontSize: 14,
@@ -276,7 +286,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                   Icon(Icons.attach_money, size: 16, color: Colors.green),
                   SizedBox(width: 4),
                   Text(
-                    vaga['salario'],
+                    'R\$ ${vaga.salarioPrevisto}',
                     style: TextStyle(
                       fontFamily: 'Montserrat',
                       fontSize: 14,
@@ -289,7 +299,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                   SizedBox(width: 4),
                   Expanded(
                     child: Text(
-                      vaga['localizacao'],
+                      vaga.cep ?? "",
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 14,
@@ -312,7 +322,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      vaga['nivel'],
+                      vaga.nivelExperiencia,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 12,
@@ -331,7 +341,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      vaga['modelo'],
+                      vaga.modelo,
                       style: TextStyle(
                         fontFamily: 'Montserrat',
                         fontSize: 12,
@@ -353,7 +363,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Aplicado há ${vaga['dataAplicacao']}',
+                        'Aplicado há ${vaga.dataCadastro.toString()}',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 12,
@@ -371,12 +381,14 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
     );
   }
 
+  final ApiService _apiService = ApiService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appbar(
         context,
-        'Vagas Aplicadas',
+        'Vagas aplicadas',
         icon: false,
         icone: Icons.work_history,
         gradientStart: kCorPrimaria,
@@ -403,7 +415,7 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
                     children: [
                       // Título
                       Text(
-                        'Suas candidaturas',
+                        'Minhas candidaturas',
                         style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 28.0,
@@ -428,7 +440,21 @@ class _VagasAplicadasScreenState extends State<VagasAplicadasScreen> {
 
                       // Lista de vagas aplicadas
                       SingleChildScrollView(
-                        child: Column(children: _buildVagasAplicadasList()),
+                        child: FutureBuilder(
+                          future: _apiService.ObterAplicacoes(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+
+                            final vagas = snapshot.data!;
+
+                            return Column(
+                              children: _buildVagasAplicadasList(vagas),
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),

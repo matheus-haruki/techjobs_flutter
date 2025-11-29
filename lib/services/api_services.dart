@@ -1,62 +1,233 @@
 import 'dart:convert';
-import 'package:TechJobs/models/empresa_model.dart';
+import 'dart:io';
+import 'package:TechJobs/models/dashboard_candidado_model.dart';
+import 'package:TechJobs/models/dashboard_empresa_model.dart';
+import 'package:TechJobs/models/logar_usuario_response.dart';
+import 'package:TechJobs/models/novo_usuario_model.dart';
+import 'package:TechJobs/models/vaga_empresa.dart';
+import 'package:TechJobs/models/vaga_request.dart';
+import 'package:TechJobs/models/vaga_todas_request.dart';
+import 'package:TechJobs/models/vagas_model.dart';
+import 'package:TechJobs/screens/candidato/candidate_main_page.dart';
+import 'package:TechJobs/screens/empresa/empresa_screen.dart';
 import 'package:TechJobs/services/auth.dart';
-import 'package:TechJobs/services/token_manager.dart';
+import 'package:TechJobs/services/storage_manager.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-// ADICIONADO: Import para o pacote de armazenamento seguro.
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/candidato_model.dart';
 
+enum Perfil { Admin, Candidato, Empresa }
+
+Perfil obterPerfil(int perfil) {
+  switch (perfil) {
+    case 0:
+      return Perfil.Admin;
+    case 1:
+      return Perfil.Candidato;
+    case 2:
+      return Perfil.Empresa;
+  }
+
+  throw new Exception("Perfil não encontrado");
+}
+
+extension PerfilAction on Perfil {
+  Future<void> Acao(BuildContext context) async {
+    switch (this) {
+      case Perfil.Candidato:
+        await Navigator.pushReplacementNamed(context, CandidateMainPage.id);
+      case Perfil.Empresa:
+        await Navigator.pushReplacementNamed(context, EmpresaScreen.id);
+      case Perfil.Admin:
+    }
+  }
+}
+
 class ApiService {
-  static const String _baseUrl = "https://sftd3lh74q5m2m3mtrr2pqx7gy0elkda.lambda-url.us-east-1.on.aws";
-
-  // ADICIONADO: Definição da variável _storage.
-  // Agora a classe sabe o que é _storage.
-  final _storage = const FlutterSecureStorage();
-
   final Dio _dio = AuthInterceptor.dio;
 
-  /// Função para cadastrar um novo candidato na API.
-  Future<void> cadastrarCandidato(Candidato candidato) async {
-    final url = Uri.parse('$_baseUrl/candidato');
+  Future<void> adicionarVaga(AdicionarVagaRequest request) async {
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode(candidato.toJson()),
+      await _dio.post("/vaga", data: request.toJson());
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<void> deletarVaga(int id) async {
+    try {
+      await _dio.delete("/vaga/${id}");
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<String> gerarUrlAssinada(int idAplicacao) async {
+    try {
+      final response = await _dio.get("/vaga/url-cv-aplicacao/${idAplicacao}");
+
+      return response.data as String;
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<void> retornarResultado(int idAplicacao, int situacao) async {
+    try {
+      await _dio.post("/empresa/aplicacao-vaga/${idAplicacao}/${situacao}");
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<List<Vaga>> ObterAplicacoes() async {
+    final response = await _dio.get("/candidato/aplicacoes");
+
+    if (response.statusCode == 200) {
+      final vagas = response.data as List;
+
+      return vagas.map((item) => Vaga.fromJson(item)).toList();
+    } else {
+      throw Exception('Falha ao buscar vagas. Código: ${response.statusCode}');
+    }
+  }
+
+  Future<VagaEmpresaResponse> obterDetalhevaga(int id) async {
+    try {
+      final response = await _dio.get("/vaga/empresa/${id}");
+
+      return VagaEmpresaResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<DashboardCandidatoResponse> obterDadosDashboardCandidato() async {
+    try {
+      final response = await _dio.get("/candidato/dashboard");
+
+      return DashboardCandidatoResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<void> adicionarUsuario(NovoUsuarioRequest request) async {
+    try {
+      await _dio.post("/usuario", data: request.toJson());
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<DashboardEmpresaResponse> obterDadosDashboardEmpresa() async {
+    try {
+      final response = await _dio.get("/empresa/dashboard");
+
+      return DashboardEmpresaResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } catch (e) {
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<List<Vaga>> obterVagasCandidato(ObterTodasVagasRequest request) async {
+    try {
+      final response = await _dio.get(
+        "/vaga/todas",
+        queryParameters: request.toJson(),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Cadastro realizado com sucesso!');
-        return;
+      if (response.statusCode == 200) {
+        final vagas = response.data as List;
+
+        return vagas.map((item) => Vaga.fromJson(item)).toList();
       } else {
-        throw Exception('Falha ao cadastrar candidato: ${response.statusCode} ${response.body}');
+        throw Exception(
+          'Falha ao buscar vagas. Código: ${response.statusCode}',
+        );
       }
     } catch (e) {
-      print(e.toString());
-      throw Exception('Não foi possível se conectar ao servidor. Verifique sua internet.');
+      print(e);
+      rethrow;
+    }
+  }
+
+  Future<void> aplicarVaga(PlatformFile file, int idVaga) async {
+    print(idVaga);
+
+    FormData formData = FormData.fromMap({
+      'file': kIsWeb
+          ? MultipartFile.fromBytes(
+              file.bytes!,
+              filename: file.name,
+              contentType: http.MediaType('application', 'octet-stream'),
+            )
+          : MultipartFile.fromFile(
+              file.path!,
+              filename: file.name,
+              contentType: http.MediaType('application', 'octet-stream'),
+            ),
+    });
+
+    await _dio.post(
+      "/candidato/vaga/$idVaga",
+      data: formData,
+      options: Options(contentType: "multipart/form-data"),
+    );
+  }
+
+  Future<List<Vaga>> obterVagasEmpresa() async {
+    try {
+      final response = await _dio.get("/vaga/empresa");
+
+      if (response.statusCode == 200) {
+        final vagas = response.data as List;
+
+        return vagas.map((item) => Vaga.fromJson(item)).toList();
+      } else {
+        throw Exception(
+          'Falha ao buscar vagas. Código: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
     }
   }
 
   /// Realiza o login, salva o cookie de sessão e retorna os dados do usuário.
-  Future<void> login(String email, String senha) async {
-
+  Future<Perfil> login(String email, String senha) async {
     try {
       final response = await _dio.post(
         "/usuario/token",
-        data: {
-          'login': email,
-          'senha': senha,
-        },
+        data: {'login': email, 'senha': senha},
       );
 
-      print(response);
-
       if (response.statusCode == 200) {
-        final String token = response.data as String;
+        final logarUsuarioResponse = LogarUsuarioResponse.fromJson(
+          response.data as Map<String, dynamic>,
+        );
 
-        await TokenManager.instance.setTokens(token);
+        await StorageManager.instance.setUserCredentials(logarUsuarioResponse);
+
+        return logarUsuarioResponse.perfil;
       } else if (response.statusCode == 401 || response.statusCode == 403) {
         throw Exception('E-mail ou senha inválidos.');
       } else {
@@ -65,45 +236,6 @@ class ApiService {
     } catch (e) {
       print(e);
       rethrow;
-    }
-  }
-
-  Future<EmpresaModel> obterDadosEmpresa() async {
-    try {
-      final response = await _dio.get('/empresa');
-
-      if (response.statusCode == 200) {
-        final data = response.data;
-
-        print(response.data);
-        // Supondo que você tenha um método fromJson em EmpresaModel
-        return EmpresaModel.fromJson(data);
-      } else {
-        throw Exception('Falha ao obter dados da empresa. Código: ${response.statusCode}');
-      }
-    } catch (e) {
-      // print(e);
-      rethrow;
-    }
-  }
-  /// EXEMPLO de como usar o cookie salvo em uma futura requisição.
-  Future<void> getMeuPerfil() async {
-    // Esta linha também funciona agora.
-    final String? cookie = await _storage.read(key: 'session_cookie');
-    final url = Uri.parse('$_baseUrl/candidato/perfil'); // Endpoint de exemplo
-
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cookie': cookie ?? '', // Envia o cookie de volta para se autenticar
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print("Perfil recebido com sucesso!");
-    } else {
-      throw Exception('Falha ao buscar perfil.');
     }
   }
 }

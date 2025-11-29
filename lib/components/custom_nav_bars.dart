@@ -95,11 +95,11 @@ class EmpresaNav extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
-            label: 'Criar Vagas',
+            label: 'Nova vaga',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),
-            label: 'Vagas Cadastradas',
+            label: 'Vagas cadastradas',
           ),
         ],
       ),

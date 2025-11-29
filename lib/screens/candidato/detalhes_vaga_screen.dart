@@ -1,10 +1,12 @@
+import 'package:TechJobs/models/vagas_model.dart';
+import 'package:TechJobs/services/api_services.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:file_picker/file_picker.dart';
 
 class DetalhesVagaScreen extends StatefulWidget {
   static const String id = 'detalhes_vaga_screen';
-  final Map<String, dynamic> vaga;
+  final Vaga vaga;
 
   const DetalhesVagaScreen({Key? key, required this.vaga}) : super(key: key);
 
@@ -13,7 +15,7 @@ class DetalhesVagaScreen extends StatefulWidget {
 }
 
 class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
-  String? _cvSelecionado;
+  PlatformFile? _cvSelecionado;
   bool _isLoading = false;
 
   Future<void> _selecionarCV() async {
@@ -26,7 +28,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
 
       if (result != null) {
         setState(() {
-          _cvSelecionado = result.files.single.name;
+          _cvSelecionado = result.files.single;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -46,6 +48,8 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
     }
   }
 
+  final ApiService _apiService = ApiService();
+
   Future<void> _aplicarParaVaga() async {
     if (_cvSelecionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -61,8 +65,8 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
       _isLoading = true;
     });
 
-    // Simular processo de aplicação
-    await Future.delayed(Duration(seconds: 2));
+    
+    await _apiService.aplicarVaga(_cvSelecionado!, widget.vaga.id);
 
     setState(() {
       _isLoading = false;
@@ -114,8 +118,8 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
   @override
   Widget build(BuildContext context) {
     final vaga = widget.vaga;
-    final nivelColor = _getNivelColor(vaga['nivel']);
-    final modeloColor = _getModeloColor(vaga['modelo']);
+    final nivelColor = _getNivelColor(vaga.nivelExperiencia);
+    final modeloColor = _getModeloColor(vaga.modelo);
 
     return Scaffold(
       appBar: appbar(
@@ -168,7 +172,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  vaga['empresa'],
+                                  vaga.nomeEmpresa ?? "",
                                   style: TextStyle(
                                     fontFamily: 'Montserrat',
                                     fontSize: 16,
@@ -179,7 +183,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                               ],
                             ),
                             Text(
-                              'Publicada ${vaga['dataPublicacao']}',
+                              'Publicada ${vaga.dataCadastro.toString()}',
                               style: TextStyle(
                                 fontFamily: 'Montserrat',
                                 fontSize: 14,
@@ -190,7 +194,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
 
                             // Título
                             Text(
-                              vaga['titulo'],
+                              vaga.nome,
                               style: TextStyle(
                                 fontFamily: 'Montserrat',
                                 fontSize: 24,
@@ -213,7 +217,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    vaga['nivel'],
+                                    vaga.nivelExperiencia,
                                     style: TextStyle(
                                       fontFamily: 'Montserrat',
                                       fontSize: 14,
@@ -233,7 +237,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    vaga['modelo'],
+                                    vaga.modelo,
                                     style: TextStyle(
                                       fontFamily: 'Montserrat',
                                       fontSize: 14,
@@ -278,7 +282,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                       ),
                                     ),
                                     Text(
-                                      vaga['salario'],
+                                      'R\$ ${vaga.salarioPrevisto}',
                                       style: TextStyle(
                                         fontFamily: 'Montserrat',
                                         fontSize: 16,
@@ -310,7 +314,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        vaga['localizacao'],
+                                        vaga.cep ?? "",
                                         style: TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 16,
@@ -336,7 +340,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                     ),
                                     SizedBox(height: 12),
                                     Text(
-                                      vaga['descricao'],
+                                      vaga.descricao,
                                       style: TextStyle(
                                         fontFamily: 'Montserrat',
                                         fontSize: 16,
@@ -403,7 +407,7 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                     SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'CV selecionado: $_cvSelecionado',
+                                        'CV selecionado: ${_cvSelecionado?.name}',
                                         style: TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14,

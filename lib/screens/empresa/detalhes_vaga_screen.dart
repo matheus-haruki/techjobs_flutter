@@ -1,16 +1,15 @@
+import 'package:TechJobs/services/api_services.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import 'package:TechJobs/components/custom_nav_bars.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class DetalhesVagaScreen extends StatefulWidget {
-  final Map<String, dynamic> vaga;
-  final int vagaIndex;
+  final int idVaga;
 
   const DetalhesVagaScreen({
     super.key,
-    required this.vaga,
-    required this.vagaIndex,
+    required this.idVaga,
   });
 
   @override
@@ -18,6 +17,8 @@ class DetalhesVagaScreen extends StatefulWidget {
 }
 
 class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
+  final ApiService _apiService = ApiService();
+
   // Lista de candidatos (agora como variável de estado)
   List<Map<String, dynamic>> candidatos = [
     {
@@ -62,19 +63,18 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
     },
   ];
 
-  void _aprovarCandidato(
+  Future<void> _aprovarCandidato(
     BuildContext context,
-    Map<String, dynamic> candidato,
-    int index,
-  ) {
-    setState(() {
-      candidatos[index]['status'] = 'Aprovado';
-    });
+    String nomeCandidato,
+    int idAplicacao,
+  ) async {
+
+    await _apiService.retornarResultado(idAplicacao, 2);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${candidato['nome']} foi aprovado!',
+          '${nomeCandidato} foi aprovado!',
           style: TextStyle(
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.w600,
@@ -88,19 +88,18 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
     );
   }
 
-  void _reprovarCandidato(
+  Future<void> _reprovarCandidato(
     BuildContext context,
-    Map<String, dynamic> candidato,
-    int index,
-  ) {
-    setState(() {
-      candidatos[index]['status'] = 'Rejeitado';
-    });
+    String nomeCandidato,
+    int idAplicacao,
+  ) async {
+
+    await _apiService.retornarResultado(idAplicacao, 3);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${candidato['nome']} foi rejeitado.',
+          '${nomeCandidato} foi rejeitado.',
           style: TextStyle(
             fontFamily: 'Montserrat',
             fontWeight: FontWeight.w600,
@@ -116,18 +115,18 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
 
   void _visualizarCV(
     BuildContext context,
-    Map<String, dynamic> candidato,
+    String nomeCandidato,
+    int idAplicacao
   ) async {
     try {
       // Para teste, vamos usar apenas o Google que sabemos que funciona
-      final String url =
-          'https://sebrae.com.br/Sebrae/Portal%20Sebrae/Anexos/curriculum_padrao.pdf';
+      final String url = await _apiService.gerarUrlAssinada(idAplicacao);
       final Uri uri = Uri.parse(url);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Abrindo CV de ${candidato['nome']}...',
+            'Abrindo CV de ${nomeCandidato}...',
             style: TextStyle(
               fontFamily: 'Montserrat',
               fontWeight: FontWeight.w600,
@@ -198,184 +197,22 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                 ),
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Card de detalhes da vaga
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 8,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.vaga['titulo'],
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 24.0,
-                                fontWeight: FontWeight.w800,
-                                color: kPreto,
-                              ),
-                            ),
-                            SizedBox(height: 12),
-                            Text(
-                              widget.vaga['descricao'],
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey[700],
-                                height: 1.5,
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            // Informações da vaga
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.attach_money,
-                                  size: 18,
-                                  color: Colors.green,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  'R\$ ${widget.vaga['salario']}',
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                                SizedBox(width: 20),
-                                Icon(
-                                  Icons.location_on,
-                                  size: 18,
-                                  color: Colors.grey[600],
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  widget.vaga['localizacao'],
-                                  style: TextStyle(
-                                    fontFamily: 'Montserrat',
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            // Badges
-                            Row(
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: kCorPrimaria.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    widget.vaga['nivelExperiencia'],
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w600,
-                                      color: kCorPrimaria,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: kCorSecundaria.withValues(
-                                      alpha: 0.1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    widget.vaga['modeloTrabalho'],
-                                    style: TextStyle(
-                                      fontFamily: 'Montserrat',
-                                      fontSize: 14.0,
-                                      fontWeight: FontWeight.w600,
-                                      color: kCorSecundaria,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                  child: FutureBuilder(
+                    future: _apiService.obterDetalhevaga(widget.idVaga),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
 
-                      SizedBox(height: 32),
+                      final vagaEmpresa = snapshot.data!;
 
-                      // Lista de candidatos
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Candidatos',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w800,
-                              color: kPreto,
-                            ),
-                          ),
+                          // Card de detalhes da vaga
                           Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: kCorSecundaria,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              '${candidatos.length} inscritos',
-                              style: TextStyle(
-                                fontFamily: 'Montserrat',
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 16),
-
-                      // Lista de candidatos
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: candidatos.length,
-                        itemBuilder: (context, index) {
-                          final candidato = candidatos[index];
-
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 12),
-                            padding: EdgeInsets.all(16),
+                            width: double.infinity,
+                            padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
@@ -387,132 +224,313 @@ class _DetalhesVagaScreenState extends State<DetalhesVagaScreen> {
                                 ),
                               ],
                             ),
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Informações
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        candidato['nome'],
-                                        style: TextStyle(
-                                          fontFamily: 'Montserrat',
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.w700,
-                                          color: kPreto,
-                                        ),
+                                Text(
+                                  vagaEmpresa.vaga.nome,
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 24.0,
+                                    fontWeight: FontWeight.w800,
+                                    color: kPreto,
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                Text(
+                                  vagaEmpresa.vaga.descricao,
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey[700],
+                                    height: 1.5,
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                // Informações da vaga
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.attach_money,
+                                      size: 18,
+                                      color: Colors.green,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'R\$ ${vagaEmpresa.vaga.salarioPrevisto}',
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.green,
                                       ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        candidato['email'],
+                                    ),
+                                    SizedBox(width: 20),
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 18,
+                                      color: Colors.grey[600],
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      vagaEmpresa.vaga.cep ?? "",
+                                      style: TextStyle(
+                                        fontFamily: 'Montserrat',
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                // Badges
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: kCorPrimaria.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        vagaEmpresa.vaga.nivelExperiencia,
                                         style: TextStyle(
                                           fontFamily: 'Montserrat',
                                           fontSize: 14.0,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w600,
+                                          color: kCorPrimaria,
                                         ),
-                                      ),
-                                      SizedBox(height: 4),
-
-                                      //Inserir texto ou btn para visualizar CV...
-                                      SizedBox(height: 8),
-                                      // Botão para visualizar CV
-                                      GestureDetector(
-                                        onTap: () {
-                                          _visualizarCV(context, candidato);
-                                        },
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              Icons.description_outlined,
-                                              size: 16,
-                                              color: kCorPrimaria,
-                                            ),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              'Ver CV',
-                                              style: TextStyle(
-                                                fontFamily: 'Montserrat',
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.w600,
-                                                color: kCorPrimaria,
-                                                decoration:
-                                                    TextDecoration.underline,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                // Aprovar ou reprovar
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Botão Aprovar
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: IconButton(
-                                        onPressed: () {
-                                          _aprovarCandidato(
-                                            context,
-                                            candidato,
-                                            index,
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.check,
-                                          color: Colors.green,
-                                          size: 20,
-                                        ),
-                                        constraints: BoxConstraints(),
-                                        padding: EdgeInsets.all(8),
                                       ),
                                     ),
                                     SizedBox(width: 8),
-                                    // Botão Reprovar
                                     Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: Colors.red.withValues(
+                                        color: kCorSecundaria.withValues(
                                           alpha: 0.1,
                                         ),
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: IconButton(
-                                        onPressed: () {
-                                          _reprovarCandidato(
-                                            context,
-                                            candidato,
-                                            index,
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.close,
-                                          color: Colors.red,
-                                          size: 20,
+                                      child: Text(
+                                        vagaEmpresa.vaga.modelo,
+                                        style: TextStyle(
+                                          fontFamily: 'Montserrat',
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: kCorSecundaria,
                                         ),
-                                        constraints: BoxConstraints(),
-                                        padding: EdgeInsets.all(8),
                                       ),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
-                    ],
+                          ),
+
+                          SizedBox(height: 32),
+
+                          // Lista de candidatos
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Candidatos',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w800,
+                                  color: kPreto,
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: kCorSecundaria,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '${vagaEmpresa.aplicacoes.length} inscritos',
+                                  style: TextStyle(
+                                    fontFamily: 'Montserrat',
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+
+                          // Lista de candidatos
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: vagaEmpresa.aplicacoes.length,
+                            itemBuilder: (context, index) {
+                              final candidato = vagaEmpresa.aplicacoes[index];
+
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 12),
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Informações
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            candidato.nome,
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 16.0,
+                                              fontWeight: FontWeight.w700,
+                                              color: kPreto,
+                                            ),
+                                          ),
+                                          SizedBox(height: 2),
+                                          Text(
+                                            candidato.email,
+                                            style: TextStyle(
+                                              fontFamily: 'Montserrat',
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                          SizedBox(height: 4),
+
+                                          //Inserir texto ou btn para visualizar CV...
+                                          SizedBox(height: 8),
+                                          // Botão para visualizar CV
+                                          GestureDetector(
+                                            onTap: () {
+                                              _visualizarCV(context, candidato.nome, candidato.id);
+                                            },
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.description_outlined,
+                                                  size: 16,
+                                                  color: kCorPrimaria,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  'Ver CV',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Montserrat',
+                                                    fontSize: 12.0,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: kCorPrimaria,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Aprovar ou reprovar
+                                    Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Botão Aprovar
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              _aprovarCandidato(
+                                                context,
+                                                candidato.nome,
+                                                candidato.id,
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.check,
+                                              color: Colors.green,
+                                              size: 20,
+                                            ),
+                                            constraints: BoxConstraints(),
+                                            padding: EdgeInsets.all(8),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        // Botão Reprovar
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              _reprovarCandidato(
+                                                context,
+                                                candidato.nome,
+                                                candidato.id,
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.close,
+                                              color: Colors.red,
+                                              size: 20,
+                                            ),
+                                            constraints: BoxConstraints(),
+                                            padding: EdgeInsets.all(8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),

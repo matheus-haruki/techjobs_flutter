@@ -1,3 +1,4 @@
+import 'package:TechJobs/models/novo_usuario_model.dart';
 import 'package:flutter/material.dart';
 import 'package:TechJobs/constants.dart';
 import '../../components/input.dart';
@@ -102,6 +103,8 @@ class _RegistrationCandidatoScreenState
     super.dispose();
   }
 
+  final _formKey = GlobalKey<FormState>();
+
   void _validatePassword(String password) {
     setState(() {
       _hasMinLength = password.length > 8;
@@ -153,15 +156,7 @@ class _RegistrationCandidatoScreenState
 
   Future<void> _submitCadastro() async {
     // Validação dos campos
-    if (_nomeController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _senhaController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, preencha todos os campos.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -191,17 +186,12 @@ class _RegistrationCandidatoScreenState
     });
 
     try {
-      final novoCandidato = Candidato(
-        nome: _nomeController.text,
-        email: _emailController.text,
-        senha: _senhaController.text,
-      );
+      final novoCandidato = NovoUsuarioRequest(senha: _senhaController.text, login: _emailController.text, perfil: Perfil.Candidato.index, documento: _cpfController.text, nome: _nomeController.text);
 
-      await _apiService.cadastrarCandidato(novoCandidato);
+      await _apiService.adicionarUsuario(novoCandidato);
 
       if (mounted) {
-        // Navegação direta para a página principal do candidato
-        Navigator.pushReplacementNamed(context, CandidateMainPage.id);
+        Navigator.pushReplacementNamed(context, LoginScreen.id);
       }
     } catch (e) {
       if (mounted) {
@@ -232,226 +222,235 @@ class _RegistrationCandidatoScreenState
               child: SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 80.0,
-                            child: Image.asset('assets/images/logo.png'),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 80.0,
+                              child: Image.asset('assets/images/logo.png'),
+                            ),
+                            SizedBox(height: 20.0),
+                            Text(
+                              'Seja bem vindo, Novato',
+                              style: TextStyle(
+                                fontFamily: 'Montserrat',
+                                fontSize: 25.0,
+                                fontWeight: FontWeight.w600,
+                                color: kPreto,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 48.0),
+                        // Nome
+                        Input(
+                          label: 'Nome',
+                          corInput: CorInput.Primaria,
+                          controller: _nomeController,
+                          hintText: 'Digite o seu nome completo',
+                          prefixIcon: Icon(Icons.person),
+                          required: true,
+                        ),
+                        SizedBox(height: 12.0),
+                        // E-mail
+                        Input(
+                          label: 'E-mail',
+                          corInput: CorInput.Primaria,
+                          controller: _emailController,
+                          hintText: 'Digite seu e-mail',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: Icon(Icons.email),
+                          required: true,
+                        ),
+                        SizedBox(height: 12.0),
+                        // CPF
+                        Input(
+                          label: 'CPF',
+                          corInput: CorInput.Primaria,
+                          controller: _cpfController,
+                          hintText: 'Digite seu CPF',
+                          prefixIcon: Icon(Icons.description),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [CpfFormatter()],
+                          required: true,
+                        ),
+                        SizedBox(height: 12.0),
+                        // Senha
+                        Input(
+                          label: 'Senha',
+                          corInput: CorInput.Primaria,
+                          controller: _senhaController,
+                          focusNode: _senhaFocusNode,
+                          hintText: 'Crie uma senha',
+                          obscureText: _obscurePassword,
+                          onChanged: _validatePassword,
+                          prefixIcon: Icon(Icons.lock),
+                          required: true,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
                           ),
-                          SizedBox(height: 20.0),
-                          Text(
-                            'Seja bem vindo, Novato',
-                            style: TextStyle(
-                              fontFamily: 'Montserrat',
-                              fontSize: 25.0,
-                              fontWeight: FontWeight.w600,
-                              color: kPreto,
+                        ),
+                        SizedBox(height: 5),
+                        // Mostrar validação apenas quando o campo está em foco
+                        if (_showPasswordValidation)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Container(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  //condições da senha
+                                  Text(
+                                    'A senha deve conter: ',
+                                    style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: kPreto,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  _buildPasswordRequirement(
+                                    'Mais de 8 caracteres',
+                                    _hasMinLength,
+                                  ),
+                                  _buildPasswordRequirement(
+                                    'Pelo menos 1 número',
+                                    _hasNumber,
+                                  ),
+                                  _buildPasswordRequirement(
+                                    'Uma letra maiúscula',
+                                    _hasUppercase,
+                                  ),
+                                  _buildPasswordRequirement(
+                                    'Uma letra minúscula',
+                                    _hasLowercase,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 48.0),
-                      // Nome
-                      Input(
-                        label: 'Nome',
-                        corInput: CorInput.Primaria,
-                        controller: _nomeController,
-                        hintText: 'Digite o seu nome completo',
-                        prefixIcon: Icon(Icons.person),
-                      ),
-                      SizedBox(height: 12.0),
-                      // E-mail
-                      Input(
-                        label: 'E-mail',
-                        corInput: CorInput.Primaria,
-                        controller: _emailController,
-                        hintText: 'Digite seu e-mail',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icon(Icons.email),
-                      ),
-                      SizedBox(height: 12.0),
-                      // CPF
-                      Input(
-                        label: 'CPF',
-                        corInput: CorInput.Primaria,
-                        controller: _cpfController,
-                        hintText: 'Digite seu CPF',
-                        prefixIcon: Icon(Icons.description),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [CpfFormatter()],
-                      ),
-                      SizedBox(height: 12.0),
-                      // Senha
-                      Input(
-                        label: 'Senha',
-                        corInput: CorInput.Primaria,
-                        controller: _senhaController,
-                        focusNode: _senhaFocusNode,
-                        hintText: 'Crie uma senha',
-                        obscureText: _obscurePassword,
-                        onChanged: _validatePassword,
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
+                        SizedBox(height: 12.0),
+                        // Confirmar Senha
+                        Input(
+                          label: 'Confirme sua senha',
+                          corInput: CorInput.Primaria,
+                          controller: _confirmaSenhaController,
+                          focusNode: _confirmSenhaFocusNode,
+                          hintText: 'Confirme a senha',
+                          required: true,
+                          obscureText: _obscureConfirmPassword,
+                          onChanged: _validateConfirmPassword,
+                          prefixIcon: Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
                         ),
-                      ),
-                      SizedBox(height: 5),
-                      // Mostrar validação apenas quando o campo está em foco
-                      if (_showPasswordValidation)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Container(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        // Mostrar validação de senhas iguais apenas quando há foco no campo de confirmação
+                        if (_showConfirmPasswordValidation &&
+                            _confirmaSenhaController.text.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Row(
                               children: [
-                                //condições da senha
+                                Icon(
+                                  _passwordsMatch
+                                      ? Icons.check_circle
+                                      : Icons.cancel,
+                                  size: 16,
+                                  color: _passwordsMatch
+                                      ? Colors.green
+                                      : kVermelho,
+                                ),
+                                SizedBox(width: 8),
                                 Text(
-                                  'A senha deve conter: ',
+                                  _passwordsMatch
+                                      ? 'As senhas coincidem'
+                                      : 'As senhas devem coincidir',
                                   style: TextStyle(
                                     fontFamily: 'Montserrat',
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: kPreto,
+                                    color: _passwordsMatch
+                                        ? Colors.green
+                                        : kVermelho,
                                   ),
-                                ),
-                                SizedBox(height: 8),
-                                _buildPasswordRequirement(
-                                  'Mais de 8 caracteres',
-                                  _hasMinLength,
-                                ),
-                                _buildPasswordRequirement(
-                                  'Pelo menos 1 número',
-                                  _hasNumber,
-                                ),
-                                _buildPasswordRequirement(
-                                  'Uma letra maiúscula',
-                                  _hasUppercase,
-                                ),
-                                _buildPasswordRequirement(
-                                  'Uma letra minúscula',
-                                  _hasLowercase,
                                 ),
                               ],
                             ),
                           ),
+                        SizedBox(height: 26.0),
+                        BtnPadrao(
+                          title: 'Finalizar Cadastro',
+                          color: kCorPrimaria,
+                          onPressed: _isLoading ? null : _submitCadastro,
                         ),
-                      SizedBox(height: 12.0),
-                      // Confirmar Senha
-                      Input(
-                        label: 'Confirme sua senha',
-                        corInput: CorInput.Primaria,
-                        controller: _confirmaSenhaController,
-                        focusNode: _confirmSenhaFocusNode,
-                        hintText: 'Confirme a senha',
-                        obscureText: _obscureConfirmPassword,
-                        onChanged: _validateConfirmPassword,
-                        prefixIcon: Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      // Mostrar validação de senhas iguais apenas quando há foco no campo de confirmação
-                      if (_showConfirmPasswordValidation &&
-                          _confirmaSenhaController.text.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+                        SizedBox(height: 12.0),
+                        SizedBox(
+                          width: 220,
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                _passwordsMatch
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                size: 16,
-                                color: _passwordsMatch
-                                    ? Colors.green
-                                    : kVermelho,
-                              ),
-                              SizedBox(width: 8),
                               Text(
-                                _passwordsMatch
-                                    ? 'As senhas coincidem'
-                                    : 'As senhas devem coincidir',
+                                'Já possui uma conta? ',
                                 style: TextStyle(
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: _passwordsMatch
-                                      ? Colors.green
-                                      : kVermelho,
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    LoginScreen.id,
+                                  );
+                                },
+                                child: Text(
+                                  'Faça o login',
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w700,
+                                    color: kPreto,
+                                    decoration: TextDecoration.underline,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      SizedBox(height: 26.0),
-                      BtnPadrao(
-                        title: 'Finalizar Cadastro',
-                        color: kCorPrimaria,
-                        onPressed: _isLoading ? null : _submitCadastro,
-                      ),
-                      SizedBox(height: 12.0),
-                      SizedBox(
-                        width: 220,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Já possui uma conta? ',
-                              style: TextStyle(
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              onPressed: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  CandidateMainPage.id,
-                                );
-                              },
-                              child: Text(
-                                'Faça o login',
-                                style: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kPreto,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
